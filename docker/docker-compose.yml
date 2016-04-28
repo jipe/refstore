@@ -1,0 +1,14 @@
+---
+version: "2"
+
+services:
+  db:
+    build: db
+
+  metastore:
+    build:
+      context: ..
+      dockerfile: docker/metastore/Dockerfile
+    depends_on:
+      - db
+

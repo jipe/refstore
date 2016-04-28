@@ -1,0 +1,37 @@
+<Context docBase="/metastore">
+  <Resource 
+    name="jdbc/metastore-jobstore" 
+    auth="Container" 
+    type="javax.sql.DataSource"
+    driverClassName="org.postgresql.Driver"
+    url="jdbc:postgresql://db:5432/metastore-jobstore"
+    username="metastore"
+    password="metastore"
+    maxTotal="20"
+    maxIdle="10"
+    maxWaitMillis="-1" />
+
+  <Resource 
+    name="jdbc/metastore-recordstore-shard1" 
+    auth="Container" 
+    type="javax.sql.DataSource"
+    driverClassName="org.postgresql.Driver"
+    url="jdbc:postgresql://db:5432/metastore-recordstore-shard1"
+    username="metastore"
+    password="metastore"
+    maxTotal="20"
+    maxIdle="10"
+    maxWaitMillis="-1" />
+
+  <Resource 
+    name="jdbc/metastore-recordstore-shard2" 
+    auth="Container" 
+    type="javax.sql.DataSource"
+    driverClassName="org.postgresql.Driver"
+    url="jdbc:postgresql://db:5432/metastore-recordstore-shard2"
+    username="metastore"
+    password="metastore"
+    maxTotal="20"
+    maxIdle="10"
+    maxWaitMillis="-1" />
+</Context>
