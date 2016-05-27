@@ -1,0 +1,14 @@
+---
+version: "2"
+
+services:
+  db:
+    build: db
+
+  controller:
+    build:
+      context: ..
+      dockerfile: docker/controller/Dockerfile
+    depends_on:
+      - db
+

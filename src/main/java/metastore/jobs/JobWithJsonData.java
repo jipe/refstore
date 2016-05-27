@@ -19,35 +19,35 @@ import org.codehaus.jackson.JsonToken;
  */
 public abstract class JobWithJsonData extends Job {
 
-    private final JsonFactory jsonFactory;
-    
-    public JobWithJsonData(JsonFactory jsonFactory) {
-        this.jsonFactory = jsonFactory;
-    }
-    
-    @Override
-    public void readData(Reader reader) throws JobException, IOException {
-        Stack<Object> target = new Stack<>();
-        target.push(this);
-        
-        JsonParser parser = jsonFactory.createJsonParser(reader);
-        JsonToken token = null;
-        while ((token = parser.nextToken()) != null) {
-            switch (token) {
-            case START_OBJECT:
-                break;
-            case END_OBJECT:
-                break;
-            default:
-                break;
-            }
-        }
-    }
+	private final JsonFactory jsonFactory;
 
-    @Override
-    public void writeData(Writer writer) throws JobException, IOException {
-        // TODO Auto-generated method stub
+	public JobWithJsonData(JsonFactory jsonFactory) {
+		this.jsonFactory = jsonFactory;
+	}
 
-    }
+	@Override
+	public void readData(Reader reader) throws JobException, IOException {
+		Stack<Object> target = new Stack<>();
+		target.push(this);
+
+		JsonParser parser = jsonFactory.createJsonParser(reader);
+		JsonToken token = null;
+		while ((token = parser.nextToken()) != null) {
+			switch (token) {
+			case START_OBJECT:
+				break;
+			case END_OBJECT:
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	@Override
+	public void writeData(Writer writer) throws JobException, IOException {
+		// TODO Auto-generated method stub
+
+	}
 
 }

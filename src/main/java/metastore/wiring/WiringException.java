@@ -24,5 +24,5 @@ public class WiringException extends RuntimeException {
 	public WiringException(Throwable cause) {
 		super(cause);
 	}
-	
+
 }

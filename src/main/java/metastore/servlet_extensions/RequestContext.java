@@ -10,16 +10,16 @@ public class RequestContext {
 
 	private final HttpServletRequest request;
 	private final HttpServletResponse response;
-	
+
 	public RequestContext(HttpServletRequest request, HttpServletResponse response) {
 		this.request  = request;
 		this.response = response;
 	}
-	
+
 	public void showView(String name) throws ServletException, IOException {
 		request.getRequestDispatcher("/WEB-INF/views/" + name).forward(request, response);
 	}
-	
+
 	public void addRequestParameter(String name, Object value) {
 		request.setAttribute(name, value);
 	}

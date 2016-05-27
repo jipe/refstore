@@ -47,33 +47,33 @@ public class ApplicationInitializer implements ServletContextListener {
 
 	private ShardedJdbcRecordStore createRecordStore() {
 		ShardedJdbcRecordStore recordStore = new ShardedJdbcRecordStore();
-		
+
 		int shardNumber = 1;
 		JndiDataSource shard;
 		while ((shard = JndiDataSource.find(String.format("jdbc/metastore-recordstore-shard%d", shardNumber))) != null) {
 			recordStore.addShard(shard);
 			shardNumber++;
 		}
-		
+
 		try {
 			recordStore.applyMigrations();
 		} catch (Exception e) {
 			throw new RuntimeException("Error migrating recordstore datasources", e);
 		}
-		
+
 		return recordStore;
 	}
 
 	private JdbcJobStore createJobStore() {
 		JdbcJobStore jobStore = null;
-		
+
 		try {
 			jobStore = new JdbcJobStore(new JndiDataSource("jdbc/metastore-jobstore"));
 			jobStore.applyMigrations();
 		} catch (Exception e) {
 			throw new RuntimeException("Error getting and migrating jobstore datasource", e);
 		}
-		
+
 		return jobStore;
 	}
 }

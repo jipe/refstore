@@ -7,9 +7,9 @@ import metastore.records.RecordStore;
 
 public interface ServiceLocator {
 
-    RecordStore getRecordStore();
+	RecordStore getRecordStore();
 
-    Indexer<? extends IndexDocument> getIndexer();
+	Indexer<? extends IndexDocument> getIndexer();
 
-    JobScheduler getJobScheduler();
+	JobScheduler getJobScheduler();
 }

@@ -14,7 +14,7 @@ import org.apache.solr.client.solrj.SolrServerException;
 public class SolrIndexer implements Indexer<SolrIndexDocument> {
 
 	private final SolrClient solr;
-	
+
 	public SolrIndexer(SolrClient solr) {
 		this.solr = solr;
 	}
@@ -23,13 +23,13 @@ public class SolrIndexer implements Indexer<SolrIndexDocument> {
 	public void add(BlockingQueue<SolrIndexDocument> indexDocuments)
 			throws IndexerException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
 	public void delete(String id) throws IndexerException {
 		// TODO Auto-generated method stub
-		
+
 	}
 
 	@Override
@@ -44,5 +44,5 @@ public class SolrIndexer implements Indexer<SolrIndexDocument> {
 			e.printStackTrace();
 		}
 	}
-	
+
 }

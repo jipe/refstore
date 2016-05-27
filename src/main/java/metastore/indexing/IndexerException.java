@@ -24,5 +24,5 @@ public class IndexerException extends Exception {
 	public IndexerException(Throwable cause) {
 		super(cause);
 	}
-	
+
 }

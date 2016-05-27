@@ -16,39 +16,39 @@ import metastore.records.RecordStore;
 
 public class PropertiesBackedServiceLocator implements ServiceLocator {
 
-    private final JobScheduler jobScheduler;
-    
-    public PropertiesBackedServiceLocator(Properties props) throws JobStoreException {
-        this.jobScheduler = setupJobScheduler(props);
-    }
+	private final JobScheduler jobScheduler;
 
-    private JobStore setupJobStore(Properties props) throws JobStoreException {
-        try {
-            return new JdbcJobStore(new JndiDataSource("jdbc/metastore-jobstore"));
-        } catch (NamingException e) {
-            throw new JobStoreException(e);
-        }
-    }
+	public PropertiesBackedServiceLocator(Properties props) throws JobStoreException {
+		this.jobScheduler = setupJobScheduler(props);
+	}
 
-    private JobScheduler setupJobScheduler(Properties props) throws JobStoreException {
-        return new MetastoreJobScheduler(setupJobStore(props));
-    }
+	private JobStore setupJobStore(Properties props) throws JobStoreException {
+		try {
+			return new JdbcJobStore(new JndiDataSource("jdbc/metastore-jobstore"));
+		} catch (NamingException e) {
+			throw new JobStoreException(e);
+		}
+	}
 
-    @Override
-    public RecordStore getRecordStore() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	private JobScheduler setupJobScheduler(Properties props) throws JobStoreException {
+		return new MetastoreJobScheduler(setupJobStore(props));
+	}
 
-    @Override
-    public Indexer<? extends IndexDocument> getIndexer() {
-        // TODO Auto-generated method stub
-        return null;
-    }
+	@Override
+	public RecordStore getRecordStore() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 
-    @Override
-    public JobScheduler getJobScheduler() {
-        return jobScheduler;
-    }
-    
+	@Override
+	public Indexer<? extends IndexDocument> getIndexer() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+
+	@Override
+	public JobScheduler getJobScheduler() {
+		return jobScheduler;
+	}
+
 }

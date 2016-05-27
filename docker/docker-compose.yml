@@ -3,12 +3,10 @@ version: "2"
 
 services:
   db:
-    build: db
+    image: metastore/db
 
-  metastore:
-    build:
-      context: ..
-      dockerfile: docker/metastore/Dockerfile
+  controller:
+    image: metastore/controller
     depends_on:
       - db
 

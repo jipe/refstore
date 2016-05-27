@@ -8,10 +8,10 @@ import metastore.servlet_extensions.RequestContext;
 
 public class DashboardController extends MetastoreController {
 
-    private static final long serialVersionUID = 1L;
+	private static final long serialVersionUID = 1L;
 
-    @Override
-    protected void doGet(RequestContext context) throws ServletException, IOException {
-    	context.showView("dashboard/index.jsp");
-    }
+	@Override
+	protected void doGet(RequestContext context) throws ServletException, IOException {
+		context.showView("dashboard/index.jsp");
+	}
 }

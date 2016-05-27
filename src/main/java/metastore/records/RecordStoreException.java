@@ -21,5 +21,5 @@ public class RecordStoreException extends IOException {
 	public RecordStoreException(Throwable cause) {
 		super(cause);
 	}
-	
+
 }
