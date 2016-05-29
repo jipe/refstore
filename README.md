@@ -1,4 +1,4 @@
-# RefStore
+# RefStore ![Build Status](https://travis-ci.org/jipe/refstore.svg?branch=master)](https://travis-ci.org/jip)
 A web application for harvesting, processing and indexing publication references.
 
 ## Requirements
