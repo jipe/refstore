@@ -1,9 +1,8 @@
 package refstore.wiring;
 
-import java.lang.reflect.AnnotatedType;
+import java.lang.annotation.Annotation;
 import java.lang.reflect.Constructor;
 import java.lang.reflect.InvocationTargetException;
-import java.lang.reflect.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -92,14 +91,22 @@ public class Wiring {
 
 	private Constructor<?> getWiredConstructor(Class<?> type) {
 		for (Constructor<?> ctor : type.getConstructors()) {
-			if (ctor.getParameterCount() == 0) {
+			if (ctor.getParameterTypes().length == 0) {
 				continue;
 			}
 
 			boolean allWired = true;
-			for (AnnotatedType paramType : ctor.getAnnotatedParameterTypes()) {
-				if (!paramType.isAnnotationPresent(Wired.class)) {
+			for (Annotation[] annotations : ctor.getParameterAnnotations()) {
+				boolean parameterWired = false;
+				for (Annotation annotation : annotations) {
+					if (Wired.class.equals(annotation.annotationType())) {
+						parameterWired = true;
+						break;
+					}
+				}
+				if (!parameterWired) {
 					allWired = false;
+					break;
 				}
 			}
 
@@ -111,13 +118,17 @@ public class Wiring {
 	}
 
 	private <T> T instantiateWired(Constructor<T> ctor) throws WiringException {
-		Object[] ctorParams = new Object[ctor.getParameterCount()];
+		Object[] ctorParams = new Object[ctor.getParameterTypes().length];
 		int paramIdx = 0;
 
-		for (Parameter parameter : ctor.getParameters()) {
-			Wired annotation = parameter.getType().getAnnotation(Wired.class);
-			String id = annotation.value();
-			ctorParams[paramIdx] = getWiring(parameter.getType(), "".equals(id) ? defaultId : "");
+		for (Annotation[] annotations : ctor.getParameterAnnotations()) {
+			for (Annotation annotation : annotations) {
+				if (Wired.class.equals(annotation.annotationType())) {
+					Wired wiredAnnotation = (Wired) annotation;
+					String id = wiredAnnotation.value();
+					ctorParams[paramIdx] = getWiring(ctor.getParameterTypes()[paramIdx], "".equals(id) ? defaultId : "");
+				}
+			}
 			paramIdx++;
 		}
 
@@ -178,17 +189,7 @@ public class Wiring {
 				break;
 			}
 
-			boolean allWired = true;
-			for (AnnotatedType type : c.getAnnotatedParameterTypes()) {
-				if (!type.isAnnotationPresent(Wired.class)) {
-					allWired = false;
-				}
-			}
-
-			if (allWired) {
-				hasWiredConstructor = true;
-				break;
-			}
+			hasWiredConstructor = getWiredConstructor(impl) != null;
 		}
 
 		if (!hasNoArgsConstructor && !hasWiredConstructor) {
