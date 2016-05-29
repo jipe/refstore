@@ -2,7 +2,7 @@
 A web application for harvesting, processing and indexing publication references.
 
 ## Requirements
-- Java 8, Tomcat 8, PostgreSQL 9, Docker 1.9, Docker Compose 1.7, Maven 3
+- Java 7, Tomcat 7, PostgreSQL 9, Docker 1.9, Docker Compose 1.7, Maven 3
 
 ## Running RefStore
 RefStore can be run both by deploying to an existing Tomcat and by starting up a number Docker containers.
