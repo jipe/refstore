@@ -1,36 +1,36 @@
 <Context>
   <Resource 
-    name="jdbc/metastore-jobstore" 
+    name="jdbc/refstore-jobstore" 
     auth="Container" 
     type="javax.sql.DataSource"
     driverClassName="org.postgresql.Driver"
-    url="jdbc:postgresql://localhost:5432/metastore-jobstore"
-    username="metastore"
-    password="metastore"
+    url="jdbc:postgresql://localhost:5432/refstore-jobstore"
+    username="refstore"
+    password="refstore"
     maxActive="20"
     maxIdle="10"
     maxWait="-1" />
 
   <Resource 
-    name="jdbc/metastore-recordstore-shard1" 
+    name="jdbc/refstore-recordstore-shard1" 
     auth="Container" 
     type="javax.sql.DataSource"
     driverClassName="org.postgresql.Driver"
-    url="jdbc:postgresql://localhost:5432/metastore-recordstore-shard1"
-    username="metastore"
-    password="metastore"
+    url="jdbc:postgresql://localhost:5432/refstore-recordstore-shard1"
+    username="refstore"
+    password="refstore"
     maxActive="20"
     maxIdle="10"
     maxWait="-1" />
 
   <Resource 
-    name="jdbc/metastore-recordstore-shard2" 
+    name="jdbc/refstore-recordstore-shard2" 
     auth="Container" 
     type="javax.sql.DataSource"
     driverClassName="org.postgresql.Driver"
-    url="jdbc:postgresql://localhost:5432/metastore-recordstore-shard2"
-    username="metastore"
-    password="metastore"
+    url="jdbc:postgresql://localhost:5432/refstore-recordstore-shard2"
+    username="refstore"
+    password="refstore"
     maxActive="20"
     maxIdle="10"
     maxWait="-1" />

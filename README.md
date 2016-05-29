@@ -1,10 +1,13 @@
-# Metastore
-A platform for harvesting, processing and indexing metadata records.
+# RefStore
+A web application for harvesting, processing and indexing publication references.
 
 ## Requirements
-- Java 8, Tomcat 8, PostgreSQL 9, Docker, Docker Compose, Maven 3
+- Java 8, Tomcat 8, PostgreSQL 9, Docker 1.9, Docker Compose 1.7, Maven 3
 
-## What's this?
-A project inspired by what we do at work. At work we're headed in an
-entirely new (and better) direction, but eventually I'd like to
-see this through to a working state.
+## Running RefStore
+RefStore can be run both by deploying to an existing Tomcat and by starting up a number Docker containers.
+
+### Deploying to an existing Tomcat
+
+### Using Docker
+The Docker setup is self-contained, so other than Docker and Docker Compose, you don't need to install anything on you local machine. All the services RefStore depends on are started as part of the Docker setup.

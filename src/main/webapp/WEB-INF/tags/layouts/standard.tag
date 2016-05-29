@@ -3,7 +3,7 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <link rel="stylesheet" type="text/css" href="${contextPath}/css/metastore.css">
+    <link rel="stylesheet" type="text/css" href="${contextPath}/css/refstore.css">
     <title>${title}</title>
   </head>
   <body>
