@@ -3,7 +3,10 @@ package refstore.wiring;
 import static org.junit.Assert.*;
 
 import org.junit.Test;
+import org.junit.experimental.runners.Enclosed;
+import org.junit.runner.RunWith;
 
+@RunWith(Enclosed.class)
 public class WiringTest {
 
 	public static class get {
