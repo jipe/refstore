@@ -1,8 +1,11 @@
-package refstore.jobs;
+package refstore.harvesting;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.io.Writer;
+
+import refstore.jobs.Job;
+import refstore.jobs.JobException;
 
 public class HarvestJob extends Job {
 

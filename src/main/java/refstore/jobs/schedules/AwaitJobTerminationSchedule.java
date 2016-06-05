@@ -1,4 +1,7 @@
-package refstore.jobs;
+package refstore.jobs.schedules;
+
+import refstore.jobs.Job;
+import refstore.jobs.Schedule;
 
 public class AwaitJobTerminationSchedule extends Schedule {
 

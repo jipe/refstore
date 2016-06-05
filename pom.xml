@@ -43,7 +43,7 @@
 							<skip>false</skip>
 							<enableAssertions>false</enableAssertions>
 							<includes>
-								<include>**/*IT.java</include>
+								<include>refstore/integration_tests/RefStoreIT.java</include>
 							</includes>
 							<systemPropertyVariables>
 								<integration>${integration}</integration>

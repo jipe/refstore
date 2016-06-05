@@ -1,6 +1,9 @@
-package refstore.jobs;
+package refstore.jobs.schedules;
 
 import java.util.Set;
+
+import refstore.jobs.Job;
+import refstore.jobs.Schedule;
 
 public class AwaitJobStatusSchedule extends Schedule {
 
