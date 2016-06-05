@@ -45,13 +45,13 @@ public class Wiring {
 		return id;
 	}
 
-	public <T> T getWiring(Class<T> type) {
+	public <T> T getWiring(Class<T> type) throws WiringException {
 		return getWiring(type, defaultId);
 	}
 
 	// Unchecked type casts in this method are OK since wire functions enforce type safety
 	@SuppressWarnings("unchecked")
-	public <T> T getWiring(Class<T> type, Object id) {
+	public <T> T getWiring(Class<T> type, Object id) throws WiringException {
 		T result = null;
 		if (registry.containsKey(type)) {
 			Object o = registry.get(type).get(id);
@@ -64,6 +64,9 @@ public class Wiring {
 					result = (T) o;
 				}
 			}
+		}
+		if (result == null) {
+			throw new WiringException(String.format("No wiring found for %s", type));
 		}
 		verifyResult(result);
 		return result;
@@ -126,7 +129,7 @@ public class Wiring {
 				if (Wired.class.equals(annotation.annotationType())) {
 					Wired wiredAnnotation = (Wired) annotation;
 					String id = wiredAnnotation.value();
-					ctorParams[paramIdx] = getWiring(ctor.getParameterTypes()[paramIdx], "".equals(id) ? defaultId : "");
+					ctorParams[paramIdx] = getWiring(ctor.getParameterTypes()[paramIdx], "".equals(id) ? defaultId : id);
 				}
 			}
 			paramIdx++;
