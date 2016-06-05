@@ -125,7 +125,7 @@ public class WiringTest {
 		}
 		
 		@Test
-		public void wiredConstructorArgsCanUseIds() {
+		public void allowsForIdsOnWiredConstructorArgs() {
 			Wiring wiring = Wiring.getDefault();
 			WiredObject obj = new WiredObject();
 			wiring.wire(WiredObject.class, "id", obj);
