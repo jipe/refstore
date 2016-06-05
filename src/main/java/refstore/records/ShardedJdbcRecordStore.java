@@ -21,18 +21,35 @@ public class ShardedJdbcRecordStore implements RecordStore {
 	}
 
 	public void applyMigrations() throws IOException, SQLException {
-		for (JdbcRecordStore recordStore : recordStores) {
-			recordStore.applyMigrations();
+		applyMigrations(false);
+	}
+	
+	public void applyMigrations(boolean async) throws IOException, SQLException {
+		if (async) {
+			// TODO: Implement asynchronous migrations
+		} else {
+			for (JdbcRecordStore recordStore : recordStores) {
+				recordStore.applyMigrations();
+			}
 		}
 	}
 
 	@Override
 	public Record getRecord(String id) {
-		Record result = null;
-		for (RecordStore recordStore : recordStores) {
-			result = recordStore.getRecord(id);
+		return getRecord(id, false);
+	}
+	
+	public Record getRecord(String id, boolean async) {
+		if (async) {
+			// TODO: Implement asynchronous record retrieval
+			return null;
+		} else {
+			Record result = null;
+			for (RecordStore recordStore : recordStores) {
+				result = recordStore.getRecord(id);
+			}
+			return result;
 		}
-		return result;
 	}
 
 	@Override
