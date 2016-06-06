@@ -1,5 +1,8 @@
 package refstore.integration_tests;
 
+import java.io.BufferedReader;
+import java.io.InputStreamReader;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
@@ -13,13 +16,23 @@ import org.junit.runners.Suite.SuiteClasses;
 public class RefStoreIT {
 
 	@BeforeClass
-	public static void setupIT() {
-		// TODO: Start docker containers
+	public static void startContainers() throws Exception {
+		Process exec = Runtime.getRuntime().exec("./start_containers.sh");
+		BufferedReader reader = new BufferedReader(new InputStreamReader(exec.getInputStream()));
+		String line = null;
+		while ((line = reader.readLine()) != null) {
+			System.out.println(line);
+		}
 	}
 	
 	@AfterClass
-	public static void tearDownIT() {
-		// TODO: Stop docker containers
+	public static void stopContainers() throws Exception {
+		Process exec = Runtime.getRuntime().exec("./stop_containers.sh");
+		BufferedReader reader = new BufferedReader(new InputStreamReader(exec.getInputStream()));
+		String line = null;
+		while ((line = reader.readLine()) != null) {
+			System.out.println(line);
+		}
 	}
 
 }
