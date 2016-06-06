@@ -1,5 +1,7 @@
 package refstore.integration_tests;
 
+import static org.junit.Assert.*;
+
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 
@@ -23,6 +25,9 @@ public class RefStoreIT {
 		while ((line = reader.readLine()) != null) {
 			System.out.println(line);
 		}
+		if (exec.exitValue() != 0) {
+			fail(String.format("Error starting containers: return code is %d", exec.exitValue()));
+		}
 	}
 	
 	@AfterClass
@@ -32,6 +37,9 @@ public class RefStoreIT {
 		String line = null;
 		while ((line = reader.readLine()) != null) {
 			System.out.println(line);
+		}
+		if (exec.exitValue() != 0) {
+			fail(String.format("Error stopping containers: return code is %d", exec.exitValue()));
 		}
 	}
 
