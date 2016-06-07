@@ -25,6 +25,7 @@ public class RefStoreIT {
 		while ((line = reader.readLine()) != null) {
 			System.out.println(line);
 		}
+		exec.waitFor();
 		if (exec.exitValue() != 0) {
 			fail(String.format("Error starting containers: return code is %d", exec.exitValue()));
 		}
@@ -38,6 +39,7 @@ public class RefStoreIT {
 		while ((line = reader.readLine()) != null) {
 			System.out.println(line);
 		}
+		exec.waitFor();
 		if (exec.exitValue() != 0) {
 			fail(String.format("Error stopping containers: return code is %d", exec.exitValue()));
 		}
