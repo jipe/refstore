@@ -1,3 +1,3 @@
 #!/bin/bash
 cd docker
-exec sudo docker-compose stop 2>&1
+exec sudo docker-compose down --remove-orphans
