@@ -1,4 +1,4 @@
 #!/bin/bash
 cd docker
-docker-compose build
-docker-compose start 2>&1
+sudo docker-compose build
+sudo docker-compose start 2>&1
