@@ -1,3 +1,3 @@
 #!/bin/bash
 cd docker
-exec docker-compose stop 2>&1
+exec sudo docker-compose stop 2>&1
