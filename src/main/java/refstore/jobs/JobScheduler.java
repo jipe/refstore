@@ -4,9 +4,13 @@ import java.util.List;
 
 public interface JobScheduler {
 
+	void add(JobListener listener);
+	
+	void remove(JobListener listener);
+	
 	void add(JobDefinition jobDefinition) throws JobStoreException;
 
-	void remove(JobDefinition jobDefinition);
+	void remove(JobDefinition jobDefinition) throws JobStoreException;
 
 	void add(Schedule schedule, Job... jobs);
 

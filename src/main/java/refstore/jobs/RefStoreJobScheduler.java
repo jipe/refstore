@@ -1,5 +1,6 @@
 package refstore.jobs;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
 
@@ -43,6 +44,7 @@ public class RefStoreJobScheduler implements JobScheduler {
 	private final Logger log = LoggerFactory.getLogger(getClass());
 	private final JobStore jobStore;
 	private final JobRunner jobRunner = new JobRunner();
+	private final List<JobListener> jobListeners = new ArrayList<>();
 	private final Thread jobRunnerThread = new Thread(jobRunner, "Job runner");
 
 	public RefStoreJobScheduler(JobStore jobStore) {
@@ -50,14 +52,23 @@ public class RefStoreJobScheduler implements JobScheduler {
 	}
 
 	@Override
+	public void add(JobListener listener) {
+		jobListeners.add(listener);
+	}
+	
+	@Override
+	public void remove(JobListener listener) {
+		while (jobListeners.remove(listener));
+	}
+	
+	@Override
 	public void add(JobDefinition jobDefinition) throws JobStoreException {
 		jobStore.saveJobDefinition(jobDefinition);
 	}
 
 	@Override
-	public void remove(JobDefinition jobDefinition) {
-		// TODO Auto-generated method stub
-
+	public void remove(JobDefinition jobDefinition) throws JobStoreException {
+		jobStore.deleteJobDefinition(jobDefinition.getId());
 	}
 
 	@Override

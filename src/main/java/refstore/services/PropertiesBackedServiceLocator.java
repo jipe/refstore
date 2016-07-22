@@ -12,6 +12,7 @@ import refstore.jobs.JobScheduler;
 import refstore.jobs.JobStore;
 import refstore.jobs.JobStoreException;
 import refstore.jobs.RefStoreJobScheduler;
+import refstore.messaging.MessageQueue;
 import refstore.records.RecordStore;
 
 public class PropertiesBackedServiceLocator implements ServiceLocator {
@@ -51,4 +52,10 @@ public class PropertiesBackedServiceLocator implements ServiceLocator {
 		return jobScheduler;
 	}
 
+	@Override
+	public MessageQueue getMessageQueue() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
 }

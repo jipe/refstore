@@ -2,11 +2,15 @@
 version: "2"
 
 services:
+  mq:
+    image: refstore/mq
+    
   db:
-    image: metastore/db
+    image: refstore/db
 
   controller:
-    image: metastore/controller
+    image: refstore/controller
     depends_on:
+      - mq
       - db
 

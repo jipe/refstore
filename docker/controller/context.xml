@@ -1,37 +1,21 @@
 <Context docBase="/refstore">
-  <Resource 
-    name="jdbc/refstore-jobstore" 
-    auth="Container" 
-    type="javax.sql.DataSource"
-    driverClassName="org.postgresql.Driver"
-    url="jdbc:postgresql://db:5432/refstore-jobstore"
-    username="refstore"
-    password="refstore"
-    maxTotal="20"
-    maxIdle="10"
-    maxWaitMillis="-1" />
 
-  <Resource 
-    name="jdbc/refstore-recordstore-shard1" 
-    auth="Container" 
-    type="javax.sql.DataSource"
-    driverClassName="org.postgresql.Driver"
-    url="jdbc:postgresql://db:5432/refstore-recordstore-shard1"
-    username="refstore"
-    password="refstore"
-    maxTotal="20"
-    maxIdle="10"
-    maxWaitMillis="-1" />
+	<Parameter name="RABBITMQ_URL" value="amqp://guest:guest@mq:5672"
+		override="false" />
 
-  <Resource 
-    name="jdbc/refstore-recordstore-shard2" 
-    auth="Container" 
-    type="javax.sql.DataSource"
-    driverClassName="org.postgresql.Driver"
-    url="jdbc:postgresql://db:5432/refstore-recordstore-shard2"
-    username="refstore"
-    password="refstore"
-    maxTotal="20"
-    maxIdle="10"
-    maxWaitMillis="-1" />
+	<Resource name="jdbc/refstore-jobstore" auth="Container"
+		type="javax.sql.DataSource" driverClassName="org.postgresql.Driver"
+		url="jdbc:postgresql://db:5432/refstore-jobstore" username="refstore"
+		password="refstore" maxTotal="20" maxIdle="10" maxWaitMillis="-1" />
+
+	<Resource name="jdbc/refstore-recordstore-shard1" auth="Container"
+		type="javax.sql.DataSource" driverClassName="org.postgresql.Driver"
+		url="jdbc:postgresql://db:5432/refstore-recordstore-shard1" username="refstore"
+		password="refstore" maxTotal="20" maxIdle="10" maxWaitMillis="-1" />
+
+	<Resource name="jdbc/refstore-recordstore-shard2" auth="Container"
+		type="javax.sql.DataSource" driverClassName="org.postgresql.Driver"
+		url="jdbc:postgresql://db:5432/refstore-recordstore-shard2" username="refstore"
+		password="refstore" maxTotal="20" maxIdle="10" maxWaitMillis="-1" />
+
 </Context>

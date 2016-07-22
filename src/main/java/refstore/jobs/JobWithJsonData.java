@@ -30,13 +30,46 @@ public abstract class JobWithJsonData extends Job {
 		Stack<Object> target = new Stack<>();
 		target.push(this);
 
+		String fieldName = null;
 		JsonParser parser = jsonFactory.createJsonParser(reader);
 		JsonToken token = null;
 		while ((token = parser.nextToken()) != null) {
 			switch (token) {
+			case FIELD_NAME:
+				fieldName = parser.getText();
+				break;
+			case VALUE_STRING:
+				Object o = target.peek();
+				try {
+					o.getClass().getDeclaredField(fieldName).set(o, parser.getText());
+				} catch (Exception e) {
+					throw new JobException("Error setting string value", e);
+				}
+				break;
+			case VALUE_TRUE:
+				break;
+			case VALUE_FALSE:
+				break;
 			case START_OBJECT:
+				if (fieldName != null) {
+					try {
+						target.push(getClass().getDeclaredField(fieldName).getType().newInstance());
+					} catch (Exception e) {
+						throw new JobException("Error instantiating field value", e);
+					}
+				}
 				break;
 			case END_OBJECT:
+				if (fieldName != null) {
+					target.pop();
+					fieldName = null;
+				}
+				break;
+			case VALUE_NUMBER_INT:
+				break;
+			case VALUE_NUMBER_FLOAT:
+				break;
+			case VALUE_NULL:
 				break;
 			default:
 				break;

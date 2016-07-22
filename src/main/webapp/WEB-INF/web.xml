@@ -1,29 +1,40 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="http://java.sun.com/xml/ns/javaee" xmlns:jsp="http://java.sun.com/xml/ns/javaee/jsp" xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd" metadata-complete="true" version="3.0">
-  <listener>
-    <listener-class>refstore.ApplicationInitializer</listener-class>
-  </listener>
-  <servlet>
-    <servlet-name>jobs-controller</servlet-name>
-    <servlet-class>refstore.controllers.JobsController</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>jobs-controller</servlet-name>
-    <url-pattern>/jobs</url-pattern>
-    <url-pattern>/jobs/*</url-pattern>
-  </servlet-mapping>
-  <servlet>
-    <servlet-name>dashboard-controller</servlet-name>
-    <servlet-class>refstore.controllers.DashboardController</servlet-class>
-  </servlet>
-  <servlet-mapping>
-    <servlet-name>dashboard-controller</servlet-name>
-    <url-pattern>/dashboard</url-pattern>
-  </servlet-mapping>
-  <jsp-config>
-    <taglib>
-      <taglib-uri>dk.dtic.refstore</taglib-uri>
-      <taglib-location>/WEB-INF/taglibs/refstore.tld</taglib-location>
-    </taglib>
-  </jsp-config>
+<web-app xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xmlns="http://java.sun.com/xml/ns/javaee" xmlns:jsp="http://java.sun.com/xml/ns/javaee/jsp"
+	xsi:schemaLocation="http://java.sun.com/xml/ns/javaee http://java.sun.com/xml/ns/javaee/web-app_3_0.xsd"
+	metadata-complete="true" version="3.0">
+	<context-param>
+		<param-name>RABBITMQ_URL</param-name>
+		<param-value>amqp://guest:guest@localhost:5672</param-value>
+	</context-param>
+	
+	<listener>
+		<listener-class>refstore.ApplicationInitializer</listener-class>
+	</listener>
+	
+	<servlet>
+		<servlet-name>jobs-controller</servlet-name>
+		<servlet-class>refstore.controllers.JobsController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>jobs-controller</servlet-name>
+		<url-pattern>/jobs</url-pattern>
+		<url-pattern>/jobs/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
+		<servlet-name>dashboard-controller</servlet-name>
+		<servlet-class>refstore.controllers.DashboardController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>dashboard-controller</servlet-name>
+		<url-pattern>/dashboard</url-pattern>
+	</servlet-mapping>
+	
+	<jsp-config>
+		<taglib>
+			<taglib-uri>dk.dtic.refstore</taglib-uri>
+			<taglib-location>/WEB-INF/taglibs/refstore.tld</taglib-location>
+		</taglib>
+	</jsp-config>
 </web-app>

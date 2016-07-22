@@ -1,5 +1,7 @@
 package refstore;
 
+import java.io.IOException;
+
 import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
@@ -11,6 +13,8 @@ import refstore.database.JndiDataSource;
 import refstore.jobs.JdbcJobStore;
 import refstore.jobs.JobScheduler;
 import refstore.jobs.RefStoreJobScheduler;
+import refstore.messaging.MessageQueue;
+import refstore.messaging.RabbitMqBasedMessageQueue;
 import refstore.records.RecordStore;
 import refstore.records.ShardedJdbcRecordStore;
 import refstore.services.WiringBackedServiceLocator;
@@ -28,9 +32,16 @@ public class ApplicationInitializer implements ServletContextListener {
 		Wiring wiring = Wiring.getDefault();
 		wiring.wire(JobScheduler.class, new RefStoreJobScheduler(createJobStore()));
 		wiring.wire(RecordStore.class, createRecordStore());
+		wiring.wire(MessageQueue.class, createMessageQueue(sce.getServletContext().getInitParameter("RABBITMQ_URL")));
 
 		refStore = new RefStore(new WiringBackedServiceLocator(wiring));
 		refStore.getJobScheduler().start();
+		try {
+			refStore.getMessageQueue().requestHarvest();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
 
 		ServletContext context = sce.getServletContext();
 		context.setAttribute("contextPath", context.getContextPath());
@@ -42,6 +53,11 @@ public class ApplicationInitializer implements ServletContextListener {
 		RefStore refStore = (RefStore) sce.getServletContext().getAttribute("refStore");
 		if (refStore != null) {
 			refStore.getJobScheduler().shutDown();
+			try {
+				refStore.getMessageQueue().close();
+			} catch (IOException e) {
+				log.warn("Error while closing message queue", e);
+			}
 		}
 	}
 
@@ -76,4 +92,13 @@ public class ApplicationInitializer implements ServletContextListener {
 
 		return jobStore;
 	}
+	
+	private RabbitMqBasedMessageQueue createMessageQueue(String rabbitMqUri) {
+		try {
+			return new RabbitMqBasedMessageQueue(rabbitMqUri);
+		} catch (Exception e) {
+			throw new RuntimeException("Error creating message queue", e);
+		}
+	}
+
 }

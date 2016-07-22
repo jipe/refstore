@@ -2,6 +2,9 @@
 version: "2"
 
 services:
+  mq:
+    build: mq
+
   db:
     build: db
 
@@ -9,6 +12,3 @@ services:
     build:
       context: ..
       dockerfile: docker/controller/Dockerfile
-    depends_on:
-      - db
-
