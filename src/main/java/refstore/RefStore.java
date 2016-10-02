@@ -6,7 +6,7 @@ import java.util.Set;
 import refstore.harvesting.Harvester;
 import refstore.jobs.Job;
 import refstore.jobs.JobScheduler;
-import refstore.messaging.MessageQueue;
+import refstore.messaging.Messenger;
 import refstore.services.ServiceLocator;
 
 public class RefStore {
@@ -24,8 +24,8 @@ public class RefStore {
 		return locator.getJobScheduler();
 	}
 
-	public MessageQueue getMessageQueue() {
-		return locator.getMessageQueue();
+	public Messenger getMessenger() {
+		return locator.getMessenger();
 	}
 	
 	public void registerHarvesterType(Class<? extends Harvester<?>> harvesterType) {

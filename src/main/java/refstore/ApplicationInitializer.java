@@ -9,12 +9,14 @@ import javax.servlet.ServletContextListener;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import com.rabbitmq.client.ConnectionFactory;
+
 import refstore.database.JndiDataSource;
 import refstore.jobs.JdbcJobStore;
 import refstore.jobs.JobScheduler;
 import refstore.jobs.RefStoreJobScheduler;
-import refstore.messaging.MessageQueue;
-import refstore.messaging.RabbitMqBasedMessageQueue;
+import refstore.messaging.Messenger;
+import refstore.messaging.RabbitMqBasedMessenger;
 import refstore.records.RecordStore;
 import refstore.records.ShardedJdbcRecordStore;
 import refstore.services.WiringBackedServiceLocator;
@@ -32,16 +34,10 @@ public class ApplicationInitializer implements ServletContextListener {
 		Wiring wiring = Wiring.getDefault();
 		wiring.wire(JobScheduler.class, new RefStoreJobScheduler(createJobStore()));
 		wiring.wire(RecordStore.class, createRecordStore());
-		wiring.wire(MessageQueue.class, createMessageQueue(sce.getServletContext().getInitParameter("RABBITMQ_URL")));
+		wiring.wire(Messenger.class, createMessenger(sce.getServletContext().getInitParameter("RABBITMQ_URL")));
 
 		refStore = new RefStore(new WiringBackedServiceLocator(wiring));
 		refStore.getJobScheduler().start();
-		try {
-			refStore.getMessageQueue().requestHarvest();
-		} catch (IOException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
 
 		ServletContext context = sce.getServletContext();
 		context.setAttribute("contextPath", context.getContextPath());
@@ -54,7 +50,7 @@ public class ApplicationInitializer implements ServletContextListener {
 		if (refStore != null) {
 			refStore.getJobScheduler().shutDown();
 			try {
-				refStore.getMessageQueue().close();
+				refStore.getMessenger().close();
 			} catch (IOException e) {
 				log.warn("Error while closing message queue", e);
 			}
@@ -93,9 +89,11 @@ public class ApplicationInitializer implements ServletContextListener {
 		return jobStore;
 	}
 	
-	private RabbitMqBasedMessageQueue createMessageQueue(String rabbitMqUri) {
+	private Messenger createMessenger(String rabbitMqUri) {
 		try {
-			return new RabbitMqBasedMessageQueue(rabbitMqUri);
+			ConnectionFactory factory = new ConnectionFactory();
+			factory.setUri(rabbitMqUri);
+			return new RabbitMqBasedMessenger(factory);
 		} catch (Exception e) {
 			throw new RuntimeException("Error creating message queue", e);
 		}

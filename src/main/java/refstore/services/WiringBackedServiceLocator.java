@@ -4,7 +4,7 @@ import net.jcip.annotations.ThreadSafe;
 import refstore.indexing.IndexDocument;
 import refstore.indexing.Indexer;
 import refstore.jobs.JobScheduler;
-import refstore.messaging.MessageQueue;
+import refstore.messaging.Messenger;
 import refstore.records.RecordStore;
 import refstore.wiring.Wiring;
 
@@ -40,8 +40,8 @@ public class WiringBackedServiceLocator implements ServiceLocator {
 	}
 	
 	@Override
-	public MessageQueue getMessageQueue() {
-		return wiring.getWiring(MessageQueue.class);
+	public Messenger getMessenger() {
+		return wiring.getWiring(Messenger.class);
 	}
 
 	protected <T> T get(Class<T> type) {

@@ -3,7 +3,7 @@ package refstore.services;
 import refstore.indexing.IndexDocument;
 import refstore.indexing.Indexer;
 import refstore.jobs.JobScheduler;
-import refstore.messaging.MessageQueue;
+import refstore.messaging.Messenger;
 import refstore.records.RecordStore;
 
 public interface ServiceLocator {
@@ -14,6 +14,6 @@ public interface ServiceLocator {
 
 	JobScheduler getJobScheduler();
 	
-	MessageQueue getMessageQueue();
+	Messenger getMessenger();
 	
 }

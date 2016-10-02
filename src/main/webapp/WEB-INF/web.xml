@@ -5,7 +5,7 @@
 	metadata-complete="true" version="3.0">
 	<context-param>
 		<param-name>RABBITMQ_URL</param-name>
-		<param-value>amqp://guest:guest@localhost:5672</param-value>
+		<param-value>amqp://refstore:refstore@localhost:5672</param-value>
 	</context-param>
 	
 	<listener>
