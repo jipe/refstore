@@ -2,4 +2,4 @@
 A web application for harvesting, processing and indexing publication references.
 
 ## Requirements
-- Java 7, Tomcat 7, PostgreSQL 9, Docker 1.10, Docker Compose 1.7, Maven 3
+- Java 8, Tomcat 8, PostgreSQL 9, Docker 1.12, Docker Compose 1.8, Maven 3
