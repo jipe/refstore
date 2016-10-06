@@ -5,12 +5,22 @@
 	metadata-complete="true" version="3.0">
 	<context-param>
 		<param-name>RABBITMQ_URL</param-name>
-		<param-value>amqp://refstore:refstore@localhost:5672</param-value>
+		<param-value>amqp://guest:guest@localhost:5672</param-value>
 	</context-param>
 	
 	<listener>
-		<listener-class>refstore.ApplicationInitializer</listener-class>
+		<listener-class>refstore.ApplicationContextListener</listener-class>
 	</listener>
+	
+	<servlet>
+		<servlet-name>configuration-controller</servlet-name>
+		<servlet-class>refstore.controllers.ConfigurationController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>configuration-controller</servlet-name>
+		<url-pattern>/configuration</url-pattern>
+		<url-pattern>/configuration/*</url-pattern>
+	</servlet-mapping>
 	
 	<servlet>
 		<servlet-name>jobs-controller</servlet-name>

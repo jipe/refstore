@@ -1,10 +1,10 @@
 <Context>
   <Resource 
-    name="jdbc/refstore-jobstore" 
+    name="jdbc/refstore.jobStore"
     auth="Container" 
     type="javax.sql.DataSource"
     driverClassName="org.postgresql.Driver"
-    url="jdbc:postgresql://localhost:5432/refstore-jobstore"
+    url="jdbc:postgresql://localhost:5432/refstore.job-store"
     username="refstore"
     password="refstore"
     maxActive="20"
@@ -12,11 +12,11 @@
     maxWait="-1" />
 
   <Resource 
-    name="jdbc/refstore-recordstore-shard1" 
+    name="jdbc/refstore.configurationStore"
     auth="Container" 
     type="javax.sql.DataSource"
     driverClassName="org.postgresql.Driver"
-    url="jdbc:postgresql://localhost:5432/refstore-recordstore-shard1"
+    url="jdbc:postgresql://localhost:5432/refstore.configuration-store"
     username="refstore"
     password="refstore"
     maxActive="20"
@@ -24,11 +24,23 @@
     maxWait="-1" />
 
   <Resource 
-    name="jdbc/refstore-recordstore-shard2" 
+    name="jdbc/refstore.recordStore.shard1"
     auth="Container" 
     type="javax.sql.DataSource"
     driverClassName="org.postgresql.Driver"
-    url="jdbc:postgresql://localhost:5432/refstore-recordstore-shard2"
+    url="jdbc:postgresql://localhost:5432/refstore.record-store.shard1"
+    username="refstore"
+    password="refstore"
+    maxActive="20"
+    maxIdle="10"
+    maxWait="-1" />
+
+  <Resource 
+    name="jdbc/refstore.recordStore.shard2"
+    auth="Container" 
+    type="javax.sql.DataSource"
+    driverClassName="org.postgresql.Driver"
+    url="jdbc:postgresql://localhost:5432/refstore.record-store.shard2"
     username="refstore"
     password="refstore"
     maxActive="20"

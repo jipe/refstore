@@ -21,6 +21,7 @@ import com.rabbitmq.client.ConnectionFactory;
 import com.rabbitmq.client.DefaultConsumer;
 import com.rabbitmq.client.Envelope;
 
+// TODO: Implement auto-recovery connection and act accordingly
 public class RabbitMqBasedMessenger implements Messenger {
 
 	private static final Logger log = LoggerFactory.getLogger(RabbitMqBasedMessenger.class);
@@ -31,9 +32,9 @@ public class RabbitMqBasedMessenger implements Messenger {
 
 	private Connection publisherConnection;
 	private Channel publisherChannel;
-	
+
 	private Connection consumerConnection;
-	
+
 	public RabbitMqBasedMessenger(ConnectionFactory factory) throws URISyntaxException, KeyManagementException, NoSuchAlgorithmException, IOException, TimeoutException {
 		try {
 			publisherConnection = factory.newConnection();
@@ -50,7 +51,7 @@ public class RabbitMqBasedMessenger implements Messenger {
 			throw e;
 		}
 	}
-	
+
 	@Override
 	public void close() throws IOException {
 		try {
@@ -60,7 +61,7 @@ public class RabbitMqBasedMessenger implements Messenger {
 		} catch (TimeoutException e) {
 			log.warn("Timed out while waiting for publisher channel to close: {}", e.getMessage());
 		}
-		
+
 		for (Entry<Class<? extends Receiver>, List<Channel>> entry : channels.entrySet()) {
 			for (Channel channel : entry.getValue()) {
 				try {
@@ -74,43 +75,64 @@ public class RabbitMqBasedMessenger implements Messenger {
 		if (publisherConnection != null) {
 			publisherConnection.close();	
 		}
-		
+
 		if (consumerConnection != null) {
 			consumerConnection.close();
 		}
 	}
 
 	@Override
+	public void broadcast(String message) {
+		try {
+			publisherChannel.basicPublish("amq.direct", Receiver.class.getCanonicalName(), null, message.getBytes("UTF-8"));
+		} catch (IOException e) {
+			log.warn("Error broadcasting message to all receivers: '{}'", e.getMessage());
+			if (log.isDebugEnabled()) {
+				log.debug("Failed when sending message:\n{}", message);
+			}
+		}
+	}
+
+	@Override
 	public void broadcast(Class<? extends Receiver> receiverType, String message) {
-		send(receiverType, receiverType.getCanonicalName(), message);
+		try {
+			send(receiverType, receiverType.getCanonicalName(), message);
+		} catch (IOException e) {
+			log.warn("Error broadcasting message to receivers of type '{}': '{}'", receiverType.getCanonicalName(), e.getMessage());
+			if (log.isDebugEnabled()) {
+				log.debug("Failed when sending message:\n{}", message);
+			}
+		}
 	}
 
 	@Override
 	public void send(Class<? extends Receiver> receiverType, String message) {
-		String routingKey = String.format("%s-%d", receiverType.getCanonicalName(), getAndUpdateIndex(receiverType));
-		send(receiverType, routingKey, message);
+		String routingKey = String.format("%s-%d", receiverType.getCanonicalName(), getAndUpdateIndex(receiverType) + 1);
+		try {
+			send(receiverType, routingKey, message);
+		} catch (IOException e) {
+			log.warn("Error sending direct message to receiver at '{}': '{}'", routingKey, e.getMessage());
+			if (log.isDebugEnabled()) {
+				log.debug("Failed when sending message:\n{}", message);
+			}
+		}
 	}
 
-	private void send(Class<? extends Receiver> receiverType, String routingKey, String message) {
+	private void send(Class<? extends Receiver> receiverType, String routingKey, String message) throws IOException {
 		if (receivers.containsKey(receiverType)) {
-			try {
-				publisherChannel.basicPublish("amq.direct", routingKey, null, message.getBytes("UTF-8"));
-			} catch (IOException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
-			}
+			publisherChannel.basicPublish("amq.direct", routingKey, null, message.getBytes("UTF-8"));
 		} else {
 			log.warn("Receiver not registered: '{}'", receiverType);
 		}
-		
+
 	}
-	
+
 	private synchronized int getAndUpdateIndex(Class<? extends Receiver> receiverType) {
 		int result = indexes.containsKey(receiverType) ? indexes.get(receiverType) : 0;
 		indexes.put(receiverType, (result + 1) % receivers.get(receiverType).size());
 		return result;
 	}
-	
+
 	@Override
 	public synchronized void add(final Receiver receiver) {
 		if (!receivers.containsKey(receiver.getClass())) {
@@ -118,14 +140,16 @@ public class RabbitMqBasedMessenger implements Messenger {
 		}
 		receivers.get(receiver.getClass()).add(receiver);
 
-		String queue = String.format("%s", receiver.getClass().getCanonicalName());
-		String directRoutingKey = String.format("%s-%d", queue, receivers.get(receiver.getClass()).size()-1);
-		String broadcastRoutingKey = queue;
-		
+		String directRoutingKey = String.format("%s-%d", receiver.getClass().getCanonicalName(), receivers.get(receiver.getClass()).size());
+		String broadcastByTypeRoutingKey = receiver.getClass().getCanonicalName();
+		String broadcastRoutingKey = Receiver.class.getCanonicalName();
+		String queue = directRoutingKey;
+
 		try {
 			Channel channel = consumerConnection.createChannel();
 			channel.queueDeclare(queue, false, true, true, null);
 			channel.queueBind(queue, "amq.direct", directRoutingKey);
+			channel.queueBind(queue, "amq.direct", broadcastByTypeRoutingKey);
 			channel.queueBind(queue, "amq.direct", broadcastRoutingKey);
 			channel.basicQos(100);
 			channel.basicConsume(queue, new DefaultConsumer(channel) {
@@ -136,7 +160,6 @@ public class RabbitMqBasedMessenger implements Messenger {
 					if (!keepGoing) {
 						stopAndRemove(receiver);
 					}
-					
 				}
 			});
 			if (!channels.containsKey(receiver.getClass())) {
@@ -147,7 +170,7 @@ public class RabbitMqBasedMessenger implements Messenger {
 			log.warn("Error adding receiver: {}", e.getMessage());
 		}
 	}
-	
+
 	private synchronized void stopAndRemove(Receiver receiver) {
 		if (receivers.containsKey(receiver.getClass())) {
 			int index = 0;
@@ -158,18 +181,18 @@ public class RabbitMqBasedMessenger implements Messenger {
 					index++;
 				}
 			}
-			
+
 			if (index == receivers.get(receiver.getClass()).size()) {
 				log.warn("Could not find the receiver to be stopped");
 				return;
 			}
-			
+
 			Channel channel = channels.get(receiver.getClass()).get(index);			
 			try {
 				channel.close();
 				channels.get(receiver.getClass()).remove(index);
 				receivers.get(receiver.getClass()).remove(index);
-				
+
 				if (receivers.get(receiver.getClass()).isEmpty()) {
 					indexes.remove(receiver.getClass());
 				} else {

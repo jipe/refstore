@@ -7,6 +7,7 @@ import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import refstore.RefStore;
 import refstore.servlet_extensions.RequestContext;
 
 public abstract class RefStoreController extends HttpServlet {

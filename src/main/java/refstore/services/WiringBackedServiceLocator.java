@@ -1,6 +1,8 @@
 package refstore.services;
 
 import net.jcip.annotations.ThreadSafe;
+import refstore.configuration.Configuration;
+import refstore.configuration.ConfigurationStore;
 import refstore.indexing.IndexDocument;
 import refstore.indexing.Indexer;
 import refstore.jobs.JobScheduler;
@@ -23,6 +25,16 @@ public class WiringBackedServiceLocator implements ServiceLocator {
 		}
 	}
 
+	@Override
+	public ConfigurationStore getConfigurationStore() {
+		return wiring.getWiring(ConfigurationStore.class);
+	}
+	
+	@Override
+	public Configuration getConfiguration() {
+		return wiring.getWiring(Configuration.class);
+	}
+	
 	@Override
 	public RecordStore getRecordStore() {
 		return get(RecordStore.class);

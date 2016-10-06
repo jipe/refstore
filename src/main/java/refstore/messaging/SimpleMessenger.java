@@ -4,20 +4,30 @@ import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+import java.util.Map.Entry;
 
 public class SimpleMessenger implements Messenger {
 	
-	private final Map<Class<? extends Receiver>, List<Receiver>> messageListeners = new HashMap<>();
-	private final Map<Class<? extends Receiver>, Integer> messageListenerIndexes = new HashMap<>();
+	private final Map<Class<? extends Receiver>, List<Receiver>> receivers = new HashMap<>();
+	private final Map<Class<? extends Receiver>, Integer> receiverIndexes = new HashMap<>();
 
 	@Override
 	public void close() {
 	}
 
 	@Override
+	public void broadcast(String message) {
+		for (Entry<Class<? extends Receiver>, List<Receiver>> entry : receivers.entrySet()) {
+			for (Receiver receiver : entry.getValue()) {
+				receiver.receive(message);
+			}
+		}
+	}
+	
+	@Override
 	public synchronized void broadcast(Class<? extends Receiver> receiverType, String message) {
-		if (messageListeners.containsKey(receiverType)) {
-			for (Receiver listener : messageListeners.get(receiverType)) {
+		if (receivers.containsKey(receiverType)) {
+			for (Receiver listener : receivers.get(receiverType)) {
 				listener.receive(message);
 			}
 		}
@@ -25,20 +35,20 @@ public class SimpleMessenger implements Messenger {
 
 	@Override
 	public synchronized void send(Class<? extends Receiver> receiverType, String message) {
-		if (messageListeners.containsKey(receiverType)) {
-			int index = messageListenerIndexes.get(receiverType);
-			messageListeners.get(receiverType).get(index).receive(message);
-			messageListenerIndexes.put(receiverType, (index + 1) % messageListeners.size());
+		if (receivers.containsKey(receiverType)) {
+			int index = receiverIndexes.get(receiverType);
+			receivers.get(receiverType).get(index).receive(message);
+			receiverIndexes.put(receiverType, (index + 1) % receivers.size());
 		}
 	}
 
 	@Override
-	public synchronized void add(Receiver listener) {
-		if (!messageListeners.containsKey(listener.getClass())) {
-			messageListeners.put(listener.getClass(), new LinkedList<>());
-			messageListenerIndexes.put(listener.getClass(), 0);
+	public synchronized void add(Receiver receiver) {
+		if (!receivers.containsKey(receiver.getClass())) {
+			receivers.put(receiver.getClass(), new LinkedList<>());
+			receiverIndexes.put(receiver.getClass(), 0);
 		}
-		messageListeners.get(listener.getClass()).add(listener);
+		receivers.get(receiver.getClass()).add(receiver);
 	}
 
 }
