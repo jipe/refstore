@@ -24,11 +24,19 @@ import com.rabbitmq.client.Envelope;
 // TODO: Implement auto-recovery connection and act accordingly
 public class RabbitMqBasedMessenger implements Messenger {
 
+	private class ReceiverContext {
+		Receiver receiver;
+		Channel sharedWork;
+		Channel exclusiveWork;
+		
+		public ReceiverContext(Receiver receiver) {
+			this.receiver = receiver;
+		}
+	}
+	
 	private static final Logger log = LoggerFactory.getLogger(RabbitMqBasedMessenger.class);
 
-	private final Map<Class<? extends Receiver>, List<Receiver>> receivers = new HashMap<>();
-	private final Map<Class<? extends Receiver>, List<Channel>> channels = new HashMap<>();
-	private final Map<Class<? extends Receiver>, Integer> indexes = new HashMap<>();
+	private final Map<Class<? extends Receiver>, List<ReceiverContext>> contexts = new HashMap<>();
 
 	private Connection publisherConnection;
 	private Channel publisherChannel;
@@ -62,10 +70,11 @@ public class RabbitMqBasedMessenger implements Messenger {
 			log.warn("Timed out while waiting for publisher channel to close: {}", e.getMessage());
 		}
 
-		for (Entry<Class<? extends Receiver>, List<Channel>> entry : channels.entrySet()) {
-			for (Channel channel : entry.getValue()) {
+		for (Entry<Class<? extends Receiver>, List<ReceiverContext>> entry : contexts.entrySet()) {
+			for (ReceiverContext context : entry.getValue()) {
 				try {
-					channel.close();
+					context.exclusiveWork.close();
+					context.sharedWork.close();
 				} catch (TimeoutException e) {
 					log.warn("Timed out while waiting for a consumer channel to close: {}", e.getMessage());
 				}
@@ -82,9 +91,25 @@ public class RabbitMqBasedMessenger implements Messenger {
 	}
 
 	@Override
-	public void broadcast(String message) {
+	public String getNodeId() {
+		// TODO Auto-generated method stub
+		return null;
+	}
+	
+	@Override
+	public void ping(Receiver replyTo) {
+		broadcast("PING", replyTo);
+	}
+	
+	@Override
+	public void ping(Class<? extends Receiver> receiverType, Receiver replyTo) {
+		broadcast(receiverType, "PING", replyTo);
+	}
+
+	@Override
+	public void broadcast(String message, Receiver replyTo) {
 		try {
-			publisherChannel.basicPublish("amq.direct", Receiver.class.getCanonicalName(), null, message.getBytes("UTF-8"));
+			send(Receiver.class.getCanonicalName(), message, replyTo);
 		} catch (IOException e) {
 			log.warn("Error broadcasting message to all receivers: '{}'", e.getMessage());
 			if (log.isDebugEnabled()) {
@@ -94,9 +119,9 @@ public class RabbitMqBasedMessenger implements Messenger {
 	}
 
 	@Override
-	public void broadcast(Class<? extends Receiver> receiverType, String message) {
+	public void broadcast(Class<? extends Receiver> receiverType, String message, Receiver replyTo) {
 		try {
-			send(receiverType, receiverType.getCanonicalName(), message);
+			send(receiverType.getCanonicalName(), message, replyTo);
 		} catch (IOException e) {
 			log.warn("Error broadcasting message to receivers of type '{}': '{}'", receiverType.getCanonicalName(), e.getMessage());
 			if (log.isDebugEnabled()) {
@@ -106,10 +131,10 @@ public class RabbitMqBasedMessenger implements Messenger {
 	}
 
 	@Override
-	public void send(Class<? extends Receiver> receiverType, String message) {
-		String routingKey = String.format("%s-%d", receiverType.getCanonicalName(), getAndUpdateIndex(receiverType) + 1);
+	public void send(Class<? extends Receiver> receiverType, String message, Receiver replyTo) {
+		String routingKey = receiverType.getCanonicalName();
 		try {
-			send(receiverType, routingKey, message);
+			send(routingKey, message, replyTo);
 		} catch (IOException e) {
 			log.warn("Error sending direct message to receiver at '{}': '{}'", routingKey, e.getMessage());
 			if (log.isDebugEnabled()) {
@@ -118,54 +143,75 @@ public class RabbitMqBasedMessenger implements Messenger {
 		}
 	}
 
-	private void send(Class<? extends Receiver> receiverType, String routingKey, String message) throws IOException {
-		if (receivers.containsKey(receiverType)) {
-			publisherChannel.basicPublish("amq.direct", routingKey, null, message.getBytes("UTF-8"));
-		} else {
-			log.warn("Receiver not registered: '{}'", receiverType);
-		}
-
-	}
-
-	private synchronized int getAndUpdateIndex(Class<? extends Receiver> receiverType) {
-		int result = indexes.containsKey(receiverType) ? indexes.get(receiverType) : 0;
-		indexes.put(receiverType, (result + 1) % receivers.get(receiverType).size());
-		return result;
+	private void send(String routingKey, String message, Receiver replyTo) throws IOException {
+		String replyToString = String.format("%s:%s", getNodeId(), replyTo.getReceiverId());
+		BasicProperties props = new BasicProperties()
+				.builder()
+				.replyTo(replyToString)
+				.build();
+		
+		publisherChannel.basicPublish("amq.direct", routingKey, props, message.getBytes("UTF-8"));
 	}
 
 	@Override
 	public synchronized void add(final Receiver receiver) {
-		if (!receivers.containsKey(receiver.getClass())) {
-			receivers.put(receiver.getClass(), new LinkedList<>());
+		if (!contexts.containsKey(receiver.getClass())) {
+			contexts.put(receiver.getClass(), new LinkedList<>());
 		}
-		receivers.get(receiver.getClass()).add(receiver);
-
-		String directRoutingKey = String.format("%s-%d", receiver.getClass().getCanonicalName(), receivers.get(receiver.getClass()).size());
+		ReceiverContext context = new ReceiverContext(receiver);
+		contexts.get(receiver.getClass()).add(context);
+		
+		String directRoutingKey = String.format("%s-%s", receiver.getClass().getCanonicalName(), receivers.get(receiver.getClass()).size());
 		String broadcastByTypeRoutingKey = receiver.getClass().getCanonicalName();
 		String broadcastRoutingKey = Receiver.class.getCanonicalName();
 		String queue = directRoutingKey;
 
 		try {
-			Channel channel = consumerConnection.createChannel();
-			channel.queueDeclare(queue, false, true, true, null);
-			channel.queueBind(queue, "amq.direct", directRoutingKey);
-			channel.queueBind(queue, "amq.direct", broadcastByTypeRoutingKey);
-			channel.queueBind(queue, "amq.direct", broadcastRoutingKey);
-			channel.basicQos(100);
-			channel.basicConsume(queue, new DefaultConsumer(channel) {
+			String workerQueue = getClass().getCanonicalName();
+			Channel workerChannel = consumerConnection.createChannel();
+			workerChannel.queueDeclare(workerQueue, false, false, true, null);
+			workerChannel.queueBind(workerQueue, "amq.direct", workerQueue);
+			workerChannel.basicQos(1);
+			workerChannel.basicConsume(workerQueue, new DefaultConsumer(workerChannel) {
+				
+			});
+			
+			Channel directChannel = consumerConnection.createChannel();
+			directChannel.queueDeclare(queue, false, true, true, null);
+			directChannel.queueBind(queue, "amq.direct", directRoutingKey);
+			directChannel.queueBind(queue, "amq.direct", broadcastByTypeRoutingKey);
+			directChannel.queueBind(queue, "amq.direct", broadcastRoutingKey);
+			directChannel.basicQos(100);
+			directChannel.basicConsume(queue, new DefaultConsumer(directChannel) {
 				@Override
 				public void handleDelivery(String consumerTag, Envelope envelope, BasicProperties properties, byte[] body) throws IOException {
-					boolean keepGoing = receiver.receive(new String(body, "UTF-8"));
-					channel.basicAck(envelope.getDeliveryTag(), false);
-					if (!keepGoing) {
-						stopAndRemove(receiver);
+					String message = new String(body, "UTF-8");
+					Receiver replyTo = null;
+					if (properties != null && properties.getReplyTo() != null) {
+						String[] parts = properties.getReplyTo().split(":");
+						if (parts.length == 2) {
+							replyTo = new Receiver(parts[0], parts[1]);
+						} else {
+							log.warn("Reply to did not have expected format: '{}'", properties.getReplyTo());
+							return;
+						}
+					}
+					if ("PING".equals(message)) {
+						directChannel.basicAck(envelope.getDeliveryTag(), false);
+					} else {
+						boolean keepGoing = receiver.receive(message, replyTo);
+						directChannel.basicAck(envelope.getDeliveryTag(), false);
+						if (!keepGoing) {
+							stopAndRemove(receiver);
+						}
 					}
 				}
 			});
 			if (!channels.containsKey(receiver.getClass())) {
 				channels.put(receiver.getClass(), new LinkedList<>());
 			}
-			channels.get(receiver.getClass()).add(channel);
+			channels.get(receiver.getClass()).add(workerChannel);
+			channels.get(receiver.getClass()).add(directChannel);
 		} catch (IOException e) {
 			log.warn("Error adding receiver: {}", e.getMessage());
 		}

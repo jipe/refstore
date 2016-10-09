@@ -18,4 +18,4 @@ RUN /bin/bash -c /root/configure_rabbitmq.sh
 
 COPY rabbitmq.config /etc/rabbitmq/rabbitmq.config
 
-ENTRYPOINT exec rabbitmq-server
+ENTRYPOINT ["rabbitmq-server"]

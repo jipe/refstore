@@ -21,16 +21,15 @@ public class PropertiesBackedConfigurationStore implements ConfigurationStore {
 	}
 	
 	@Override
-	public Configuration load(Properties defaults) {
+	public void load(Configuration configuration) {
 		try {
 			Properties props = new Properties();
 			if (file.canRead() && file.isFile()) {
 				props.load(new FileReader(file));
 			}
-			Configuration result = new Configuration(this);
-			result.put(defaults);
-			result.put(props);
-			return result;
+			for (Entry<Object, Object> entry : props.entrySet()) {
+				configuration.put(entry.getKey().toString(), entry.getValue().toString());
+			}
 		} catch (IOException e) {
 			log.error("Error loading configuration from '{}': '{}'", file.getName(), e.getMessage());
 			throw new ConfigurationException(e);

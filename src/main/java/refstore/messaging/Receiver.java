@@ -1,7 +1,24 @@
 package refstore.messaging;
 
-public interface Receiver {
+import java.util.UUID;
 
-	boolean receive(String message);
+public class Receiver {
+
+	private String receiverId;
 	
+	public Receiver() {
+		this(UUID.randomUUID().toString());
+	}
+	
+	public Receiver(String receiverId) {
+		this.receiverId = receiverId;
+	}
+	
+	public boolean receive(String message, Receiver replyTo) {
+		return true;
+	}
+
+	public String getReceiverId() {
+		return receiverId;
+	}
 }

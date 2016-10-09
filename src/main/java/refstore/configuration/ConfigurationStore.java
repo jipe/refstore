@@ -1,10 +1,8 @@
 package refstore.configuration;
 
-import java.util.Properties;
-
 public interface ConfigurationStore {
 
-	Configuration load(Properties defaults);
+	void load(Configuration configuration);
 	
 	void save(Configuration configuration);
 	

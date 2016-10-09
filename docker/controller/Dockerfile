@@ -20,4 +20,6 @@ RUN chown -R tomcat8:tomcat8 /refstore
 
 USER tomcat8
 
-CMD exec $CATALINA_HOME/bin/catalina.sh run 
+ENTRYPOINT ["$CATALINA_HOME/bin/catalina.sh"]
+
+CMD ["run"] 

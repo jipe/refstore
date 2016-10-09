@@ -19,6 +19,14 @@ public class RequestContext {
 		this.response = response;
 	}
 
+	public HttpServletRequest getRequest() {
+		return request;
+	}
+	
+	public HttpServletResponse getResponse() {
+		return response;
+	}
+	
 	public void showView(String name) throws ServletException, IOException {
 		request.getRequestDispatcher("/WEB-INF/views/" + name).forward(request, response);
 	}

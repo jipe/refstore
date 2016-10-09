@@ -5,7 +5,7 @@ import java.util.concurrent.BlockingQueue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class QueueingReceiver implements Receiver {
+public class QueueingReceiver extends Receiver {
 
 	private static final Logger log = LoggerFactory.getLogger(QueueingReceiver.class);
 	
@@ -16,7 +16,7 @@ public class QueueingReceiver implements Receiver {
 	}
 	
 	@Override
-	public boolean receive(String message) {
+	public boolean receive(String message, Receiver replyTo) {
 		try {
 			messages.put(message);
 		} catch (InterruptedException e) {

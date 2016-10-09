@@ -128,7 +128,9 @@ public class ApplicationContextListener implements ServletContextListener {
 		Properties defaults = new Properties();
 		try (InputStream configDefaults = getClass().getResourceAsStream("/configuration.properties")) {
 			defaults.load(configDefaults);
-			return store.load(defaults);
+			Configuration configuration = new Configuration(defaults);
+			store.load(configuration);
+			return configuration;
 		} catch (IOException e) {
 			log.error("Error loading default configuration: '{}'", e.getMessage());
 			throw new ConfigurationException();

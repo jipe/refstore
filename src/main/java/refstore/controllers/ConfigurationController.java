@@ -5,7 +5,6 @@ import java.util.Map.Entry;
 
 import javax.servlet.ServletException;
 
-import refstore.RefStore;
 import refstore.configuration.Configuration;
 import refstore.servlet_extensions.RequestContext;
 
@@ -13,26 +12,28 @@ public class ConfigurationController extends RefStoreController {
 
 	private static final long serialVersionUID = 1L;
 	
-	private Configuration configuration;
-	
-	@Override
-	public void init() throws ServletException {
-		super.init();
-		configuration = ((RefStore) getServletContext().getAttribute("refStore")).getConfiguration(); 
-	}
-
 	@Override
 	protected void doGet(RequestContext context) throws ServletException, IOException {
+		Configuration configuration = refStore.getConfiguration();
 		context.addRequestParameter("configuration", configuration);
-		context.showView("configuration/index.jsp");
+		String path = context.getRequest().getPathInfo();
+		if ("/reset".equals(path)) {
+			String key = context.getParameter("key");
+			configuration.setToDefault(key);
+			refStore.getConfigurationStore().save(configuration);
+			context.sendRedirect(String.format("%s/configuration", context.getContextPath()));
+		} else {
+			context.showView("configuration/index.jsp");
+		}
 	}
 	
 	@Override
 	protected void doPost(RequestContext context) throws ServletException, IOException {
+		Configuration configuration = refStore.getConfiguration();
 		for (Entry<String, String> entry : context.getParameters().entrySet()) {
 			configuration.put(entry.getKey(), entry.getValue());
 		}
-		configuration.save();
+		refStore.getConfigurationStore().save(configuration);
 		context.sendRedirect(String.format("%s/configuration", context.getContextPath()));
 	}
 }

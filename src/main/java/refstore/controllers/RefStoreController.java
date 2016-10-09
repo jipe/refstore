@@ -14,6 +14,13 @@ public abstract class RefStoreController extends HttpServlet {
 
 	private static final long serialVersionUID = 1L;
 
+	protected RefStore refStore;
+	
+	@Override
+	public void init() throws ServletException {
+		this.refStore = (RefStore) getServletContext().getAttribute("refStore");
+	}
+	
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		doGet(new RequestContext(request, response));
