@@ -1,24 +1,27 @@
 package refstore.messaging;
 
-import java.util.UUID;
+import java.util.LinkedList;
+import java.util.List;
 
-public class Receiver {
+public abstract class Receiver {
 
-	private String receiverId;
-	
-	public Receiver() {
-		this(UUID.randomUUID().toString());
-	}
-	
-	public Receiver(String receiverId) {
-		this.receiverId = receiverId;
-	}
-	
-	public boolean receive(String message, Receiver replyTo) {
-		return true;
+	private final List<String> queues = new LinkedList<>();
+
+	public Receiver(String... queues) {
+		for (String queue : queues) {
+			this.queues.add(queue);
+		}
 	}
 
-	public String getReceiverId() {
-		return receiverId;
+	public Receiver withQueue(String queue) {
+		this.queues.add(queue);
+		return this;
 	}
+
+	public List<String> getQueues() {
+		return queues;
+	}
+
+	public abstract boolean receive(String message);
+
 }

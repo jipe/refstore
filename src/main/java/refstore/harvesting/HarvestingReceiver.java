@@ -9,7 +9,7 @@ public class HarvestingReceiver extends Receiver {
 	}
 	
 	@Override
-	public boolean receive(String message, Receiver replyTo) {
+	public boolean receive(String message) {
 		return true;
 	}
 

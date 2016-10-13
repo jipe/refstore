@@ -22,7 +22,7 @@ import refstore.jobs.JdbcJobStore;
 import refstore.jobs.JobScheduler;
 import refstore.jobs.RefStoreJobScheduler;
 import refstore.messaging.Messenger;
-import refstore.messaging.RabbitMqBasedMessenger;
+import refstore.messaging.RabbitMqBackedMessenger;
 import refstore.records.RecordStore;
 import refstore.records.ShardedJdbcRecordStore;
 import refstore.services.WiringBackedServiceLocator;
@@ -63,7 +63,7 @@ public class ApplicationContextListener implements ServletContextListener {
 			try {
 				log.info("Closing messenger");
 				refStore.getMessenger().close();
-			} catch (IOException e) {
+			} catch (Exception e) {
 				log.warn("Error while closing messenger", e);
 			}
 		}
@@ -118,7 +118,7 @@ public class ApplicationContextListener implements ServletContextListener {
 		try {
 			ConnectionFactory factory = new ConnectionFactory();
 			factory.setUri(rabbitMqUri);
-			return new RabbitMqBasedMessenger(factory);
+			return new RabbitMqBackedMessenger(factory);
 		} catch (Exception e) {
 			throw new RuntimeException("Error creating message queue", e);
 		}

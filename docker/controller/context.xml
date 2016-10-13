@@ -1,6 +1,6 @@
 <Context docBase="/refstore">
 
-	<Parameter name="RABBITMQ_URL" value="amqp://guest:guest@mq:5672"
+	<Parameter name="RABBITMQ_URL" value="amqp://refstore:refstore@mq:5672"
 		override="false" />
 
 	<Resource name="jdbc/refstore.jobStore" auth="Container"

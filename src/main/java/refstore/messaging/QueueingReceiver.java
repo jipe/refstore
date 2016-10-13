@@ -1,28 +1,42 @@
 package refstore.messaging;
 
+import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.TimeUnit;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+public class QueueingReceiver extends Receiver implements Runnable {
 
-public class QueueingReceiver extends Receiver {
+	private final BlockingQueue<String> queue;
+	private final Receiver receiver;
+	private final ExecutorService executorService;
 
-	private static final Logger log = LoggerFactory.getLogger(QueueingReceiver.class);
-	
-	private final BlockingQueue<String> messages;
-	
-	public QueueingReceiver(BlockingQueue<String> messages) {
-		this.messages   = messages;
+	public QueueingReceiver(Receiver receiver, int capacity, ExecutorService executorService) {
+		this.executorService = executorService;
+		this.queue = new ArrayBlockingQueue<>(capacity);
+		this.receiver = receiver;
 	}
-	
+
 	@Override
-	public boolean receive(String message, Receiver replyTo) {
+	public void run() {
 		try {
-			messages.put(message);
+			String message = queue.poll(10, TimeUnit.MILLISECONDS);
+			if (message != null) {
+				receiver.receive(message);
+			}
+			executorService.submit(this);
 		} catch (InterruptedException e) {
-			log.info("Interrupted while waiting to receive message");
 		}
-		return true;
 	}
-	
+
+	@Override
+	public boolean receive(String message) {
+		try {
+			queue.put(message);
+			return true;
+		} catch (InterruptedException e) {
+			return false;
+		}
+	}
+
 }

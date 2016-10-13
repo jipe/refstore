@@ -1,45 +1,14 @@
 package refstore.messaging;
 
-import java.io.Closeable;
+public interface Messenger extends AutoCloseable {
 
-public interface Messenger extends Closeable, AutoCloseable {
+	public void send(String queue, String message);
 
-	String getNodeId();
-	
-	void ping(Receiver replyTo);
-	
-	void ping(Class<? extends Receiver> receiverType, Receiver replyTo);
-	
-	/**
-	 * Send a message to all registered receivers.
-	 *
-	 * @param message
-	 * @param replyTo
-	 */
-	void broadcast(String message, Receiver replyTo);
+	public void broadcast(String message);
 
-	/**
-	 * Send a message to all receivers of type {@code receiverType}
-	 * 
-	 * @param receiverType
-	 * @param message
-	 * @param replyTo
-	 */
-	void broadcast(Class<? extends Receiver> receiverType, String message, Receiver replyTo);
+	public void add(Receiver receiver);
 
-	/**
-	 * Send a message on a round-robin basis to one of the receivers registered with type {@code receiverType}
-	 * @param receiverType
-	 * @param message
-	 * @param replyTo
-	 */
-	void send(Class<? extends Receiver> receiverType, String message, Receiver replyTo);
-
-	/**
-	 * Add a message receiver
-	 * 
-	 * @param receiver
-	 */
-	void add(Receiver receiver);
+	public void createQueue(String queue);
+	public void createQueue(String queue, boolean exclusive);
 
 }

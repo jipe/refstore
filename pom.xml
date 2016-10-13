@@ -22,7 +22,7 @@
 				<executions>
 					<execution>
 						<id>unit-test</id>
-						<phase>test</phase>
+						<phase>default-test</phase>
 						<goals>
 							<goal>test</goal>
 						</goals>
