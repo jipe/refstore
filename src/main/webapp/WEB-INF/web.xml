@@ -49,6 +49,7 @@
 	<servlet-mapping>
 		<servlet-name>dashboard-controller</servlet-name>
 		<url-pattern>/dashboard</url-pattern>
+		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 
 	<jsp-config>

@@ -1,16 +1,23 @@
 package refstore.integration_tests;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.fail;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 
+import org.apache.http.HttpStatus;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClientBuilder;
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 import org.junit.runners.Suite.SuiteClasses;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @RunWith(Suite.class)
 @SuiteClasses(
@@ -18,15 +25,30 @@ import org.junit.runners.Suite.SuiteClasses;
 )
 public class RefStoreIT {
 
+	private static final Logger log = LoggerFactory.getLogger(RefStoreIT.class);
+
 	@BeforeClass
 	public static void startContainers() {
-		try {
+		try (CloseableHttpClient http = HttpClientBuilder.create().build()){
 			runAndWaitForScript("./start_containers.sh");
+			HttpGet request = new HttpGet("http://localhost:8080");
+			boolean up = false;
+			while (!up) {
+				try (CloseableHttpResponse response = http.execute(request)) {
+					if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
+						throw new IOException("Controller unavailable");
+					}
+					up = true;
+				} catch (IOException e) {
+					log.info("Controller unavailable. Retrying in a second...");
+					Thread.sleep(1000);
+				}
+			}
 		} catch (Exception e) {
 			fail("Exception while starting containers");
 		}
 	}
-	
+
 	@AfterClass
 	public static void stopContainers() {
 		try {

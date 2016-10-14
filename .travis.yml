@@ -7,10 +7,10 @@ jdk:
   - oraclejdk8
 
 after_success:
-  - mvn clean cobertura:cobertura coveralls:report
+  - mvn coveralls:report
 
 env:
-  DOCKER_COMPOSE_VERSION: 1.7.1
+  DOCKER_COMPOSE_VERSION: 1.8.0
 
 before_install:
   - curl -fsSL https://get.docker.com/ | sh
@@ -19,4 +19,4 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 
-script: mvn integration-test
+script: mvn cobertura:integration-test
