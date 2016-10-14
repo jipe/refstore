@@ -19,4 +19,4 @@ before_install:
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 
-script: mvn cobertura:integration-test
+script: mvn cobertura:cobertura-integration-test
