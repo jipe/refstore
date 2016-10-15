@@ -33,19 +33,24 @@ public class RefStoreIT {
 			runAndWaitForScript("./start_containers.sh");
 			HttpGet request = new HttpGet("http://localhost:8080");
 			boolean up = false;
-			while (!up) {
+			int retries = 10;
+			while (!up && retries > 0) {
 				try (CloseableHttpResponse response = http.execute(request)) {
 					if (response.getStatusLine().getStatusCode() != HttpStatus.SC_OK) {
 						throw new IOException("Controller unavailable");
 					}
 					up = true;
 				} catch (IOException e) {
-					log.info("Controller unavailable. Retrying in a second...");
+					log.info("Controller unavailable. Retrying in a second (retries left: {})...", retries);
+					retries--;
 					Thread.sleep(1000);
 				}
 			}
+			if (!up) {
+				throw new Exception("Controller failed to come up within 10 seconds");
+			}
 		} catch (Exception e) {
-			fail("Exception while starting containers");
+			fail(String.format("Exception while starting containers: '%s'", e.getMessage()));
 		}
 	}
 

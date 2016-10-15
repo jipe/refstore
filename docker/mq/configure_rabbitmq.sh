@@ -1,16 +1,13 @@
 #!/bin/sh
-server=rabbitmq-server
-ctl=rabbitmqctl
-admin=/usr/bin/rabbitmqadmin
-delay=3
+server='rabbitmq-server'
+ctl='rabbitmqctl'
+admin='/usr/bin/rabbitmqadmin'
+admin_src='http://guest:guest@localhost:15672/cli/rabbitmqadmin'
 
 echo '*** Starting detached RabbitMQ server for configuring ***'
 $server -detached
 
-echo "Waiting $delay seconds for RabbitMQ to start."
-sleep $delay
-
-wget -O $admin 'http://guest:guest@localhost:15672/cli/rabbitmqadmin'
+until $(wget -qO $admin $admin_src); do sleep 1; done
 chmod 755 $admin
 
 echo '*** Creating users ***'
