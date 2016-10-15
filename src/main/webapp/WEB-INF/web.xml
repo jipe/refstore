@@ -49,9 +49,12 @@
 	<servlet-mapping>
 		<servlet-name>dashboard-controller</servlet-name>
 		<url-pattern>/dashboard</url-pattern>
-		<url-pattern>/</url-pattern>
 	</servlet-mapping>
 
+	<welcome-file-list>
+		<welcome-file>dashboard</welcome-file>
+	</welcome-file-list>
+	
 	<jsp-config>
 		<taglib>
 			<taglib-uri>dk.dtic.refstore</taglib-uri>

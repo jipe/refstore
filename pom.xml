@@ -36,6 +36,33 @@
 				<version>2.19</version>
 			</plugin>
 			<plugin>
+				<groupId>org.codehaus.mojo</groupId>
+				<artifactId>exec-maven-plugin</artifactId>
+				<version>1.5.0</version>
+				<executions>
+					<execution>
+						<id>start-containers</id>
+						<phase>pre-integration-test</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>${project.basedir}/start_containers.sh</executable>
+						</configuration>
+					</execution>
+					<execution>
+						<id>stop-containers</id>
+						<phase>post-integration-test</phase>
+						<goals>
+							<goal>exec</goal>
+						</goals>
+						<configuration>
+							<executable>${project.basedir}/stop_containers.sh</executable>
+						</configuration>
+					</execution>
+				</executions>
+			</plugin>			
+			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-failsafe-plugin</artifactId>
 				<version>2.19.1</version>
@@ -46,11 +73,6 @@
 							<goal>integration-test</goal>
 							<goal>verify</goal>
 						</goals>
-						<configuration>
-							<includes>
-								<include>refstore/integration_tests/RefStoreIT.java</include>
-							</includes>
-						</configuration>
 					</execution>
 				</executions>
 			</plugin>
