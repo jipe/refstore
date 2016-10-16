@@ -14,9 +14,8 @@ env:
 
 before_install:
   - curl -fsSL https://get.docker.com/ | sh
-  - sudo usermod -aG docker travis
   - curl -L https://github.com/docker/compose/releases/download/${DOCKER_COMPOSE_VERSION}/docker-compose-`uname -s`-`uname -m` > docker-compose
   - chmod +x docker-compose
   - sudo mv docker-compose /usr/local/bin
 
-script: mvn cobertura:cobertura-integration-test
+script: ./test.sh --coverage
