@@ -7,7 +7,7 @@ jdk:
   - oraclejdk8
 
 after_success:
-  - mvn coveralls:report
+  - mvn -P coveralls coveralls:report
 
 env:
   DOCKER_COMPOSE_VERSION: 1.8.0
