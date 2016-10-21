@@ -14,7 +14,7 @@ EXPOSE 8080
 
 COPY docker/lib/postgresql-9.4.1208.jar $CATALINA_HOME/lib/
 COPY docker/controller/context.xml $CATALINA_BASE/conf/Catalina/localhost/ROOT.xml
-COPY target/refstore-1.0 /refstore
+COPY target/refstore /refstore
 
 RUN chown -R tomcat8:tomcat8 /refstore
 
