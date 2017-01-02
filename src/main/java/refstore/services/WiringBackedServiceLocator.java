@@ -1,5 +1,7 @@
 package refstore.services;
 
+import org.codehaus.jackson.JsonFactory;
+
 import net.jcip.annotations.ThreadSafe;
 import refstore.configuration.Configuration;
 import refstore.configuration.ConfigurationStore;
@@ -14,7 +16,7 @@ import refstore.wiring.Wiring;
 public class WiringBackedServiceLocator implements ServiceLocator {
 
 	private final Wiring wiring;
-	private final Class<?>[] requiredWirings = { RecordStore.class, JobScheduler.class };
+	private final Class<?>[] requiredWirings = { RecordStore.class, JobScheduler.class, Messenger.class, JsonFactory.class };
 
 	public WiringBackedServiceLocator(Wiring wiring) {
 		this.wiring = wiring;
@@ -56,6 +58,11 @@ public class WiringBackedServiceLocator implements ServiceLocator {
 		return wiring.getWiring(Messenger.class);
 	}
 
+	@Override
+	public JsonFactory getJsonFactory() {
+		return wiring.getWiring(JsonFactory.class);
+	}
+	
 	protected <T> T get(Class<T> type) {
 		return wiring.getWiring(type);
 	}

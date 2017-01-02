@@ -4,13 +4,8 @@ version: "2"
 services:
   mq:
     image: refstore/mq
+    build: mq
     
   db:
     image: refstore/db
-
-  controller:
-    image: refstore/controller
-    depends_on:
-      - mq
-      - db
-
+    build: db

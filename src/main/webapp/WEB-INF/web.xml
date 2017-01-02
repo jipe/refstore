@@ -33,6 +33,16 @@
 	</servlet-mapping>
 
 	<servlet>
+		<servlet-name>harvest-controller</servlet-name>
+		<servlet-class>refstore.controllers.HarvestController</servlet-class>
+	</servlet>
+	<servlet-mapping>
+		<servlet-name>harvest-controller</servlet-name>
+		<url-pattern>/harvests</url-pattern>
+		<url-pattern>/harvests/*</url-pattern>
+	</servlet-mapping>
+	
+	<servlet>
 		<servlet-name>jobs-controller</servlet-name>
 		<servlet-class>refstore.controllers.JobsController</servlet-class>
 	</servlet>

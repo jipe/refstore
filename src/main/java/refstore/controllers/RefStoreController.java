@@ -8,6 +8,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import refstore.RefStore;
+import refstore.services.ServiceLocator;
 import refstore.servlet_extensions.RequestContext;
 
 public abstract class RefStoreController extends HttpServlet {
@@ -15,10 +16,12 @@ public abstract class RefStoreController extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 
 	protected RefStore refStore;
+	protected ServiceLocator services;
 	
 	@Override
 	public void init() throws ServletException {
-		this.refStore = (RefStore) getServletContext().getAttribute("refStore");
+		refStore = (RefStore) getServletContext().getAttribute("refStore");
+		services = refStore.getServiceLocator();
 	}
 	
 	@Override

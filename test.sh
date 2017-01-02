@@ -1,34 +1,57 @@
 #!/bin/bash
-mvn=$(which mvn)
+application="refstore"
 
-if [[ -z $mvn ]]; then
-  echo "You need Maven to run this script"
-  exit 1
+function usage {
+  echo "$0 options : Run $application tests"
+  echo
+  echo "  Options:"
+  echo
+  echo "   -d|--docker : Run tests in Docker"
+  echo "   -h|--help   : Show this help text"
+  echo
+}
+
+function test_locally {
+  mvn=$(which mvn)
+  
+  if [[ -z $mvn ]]; then
+    echo "You need Maven to run this script."
+    exit 1
+  fi
+
+  exec $mvn -B cobertura:cobertura-integration-test
+}
+
+function test_in_docker {
+  docker=$(which docker)
+
+  if [[ -z $docker ]]; then
+    echo "You need Docker to run this script."
+    exit 1
+  fi
+
+  $docker build -t ${application}/tester -f ${PWD}/docker/tester/Dockerfile $PWD
+  exec $docker run --rm -e "UID=$(id -u $USER)" -e "GID=$(id -g $USER)" -v ${PWD}:/${application} -v maven-repo:/root/.m2/repository ${application}/tester
+}
+
+for arg; do
+  case $arg in
+    -d|--docker)
+      docker=1
+      ;;
+    -h|--help)
+      usage
+      exit 0
+      ;;
+    *)
+      usage
+      exit 1
+      ;;
+  esac
+done
+
+if [[ -z $docker ]]; then
+  test_locally
+else
+  test_in_docker
 fi
-
-# TODO: Use getopts to mix flags
-case "$1" in
-  --no-sut)
-    mvn_params="verify"
-    ;;
-  --coverage)
-    mvn_params="-P setup-SUT,code-coverage cobertura:cobertura-integration-test"
-    ;;
-  --help)
-    echo "Usage:"
-    echo
-    echo "$0 [--no-sut | --travis | --help]"
-    echo
-    echo "  --no-sut  : assume the system under test is already running"
-    echo "  --travis  : as --setup but also runs code coverage analysis and reporting"
-    echo "  --help    : shows this help text"
-    echo
-    echo "If no arguments are given, the tests are wrapped with starting and stopping of the system under test."
-    echo
-    exit 0
-    ;;
-  *)
-    mvn_params="-P setup-SUT verify"
-esac
-
-exec $mvn $mvn_params

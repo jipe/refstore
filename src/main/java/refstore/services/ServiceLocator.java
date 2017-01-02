@@ -1,5 +1,7 @@
 package refstore.services;
 
+import org.codehaus.jackson.JsonFactory;
+
 import refstore.configuration.Configuration;
 import refstore.configuration.ConfigurationStore;
 import refstore.indexing.IndexDocument;
@@ -21,5 +23,7 @@ public interface ServiceLocator {
 	JobScheduler getJobScheduler();
 	
 	Messenger getMessenger();
+	
+	JsonFactory getJsonFactory();
 	
 }

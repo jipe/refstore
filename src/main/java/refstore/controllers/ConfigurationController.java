@@ -14,13 +14,13 @@ public class ConfigurationController extends RefStoreController {
 	
 	@Override
 	protected void doGet(RequestContext context) throws ServletException, IOException {
-		Configuration configuration = refStore.getConfiguration();
+		Configuration configuration = services.getConfiguration();
 		context.addRequestParameter("configuration", configuration);
 		String path = context.getRequest().getPathInfo();
 		if ("/reset".equals(path)) {
 			String key = context.getParameter("key");
 			configuration.setToDefault(key);
-			refStore.getConfigurationStore().save(configuration);
+			services.getConfigurationStore().save(configuration);
 			context.sendRedirect(String.format("%s/configuration", context.getContextPath()));
 		} else {
 			context.showView("configuration/index.jsp");
@@ -29,11 +29,11 @@ public class ConfigurationController extends RefStoreController {
 	
 	@Override
 	protected void doPost(RequestContext context) throws ServletException, IOException {
-		Configuration configuration = refStore.getConfiguration();
+		Configuration configuration = services.getConfiguration();
 		for (Entry<String, String> entry : context.getParameters().entrySet()) {
 			configuration.put(entry.getKey(), entry.getValue());
 		}
-		refStore.getConfigurationStore().save(configuration);
+		services.getConfigurationStore().save(configuration);
 		context.sendRedirect(String.format("%s/configuration", context.getContextPath()));
 	}
 }

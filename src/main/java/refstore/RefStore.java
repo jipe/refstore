@@ -4,11 +4,8 @@ import java.util.HashSet;
 import java.util.Set;
 
 import refstore.configuration.Configuration;
-import refstore.configuration.ConfigurationStore;
 import refstore.harvesting.Harvester;
 import refstore.jobs.Job;
-import refstore.jobs.JobScheduler;
-import refstore.messaging.Messenger;
 import refstore.services.ServiceLocator;
 
 public class RefStore {
@@ -22,20 +19,12 @@ public class RefStore {
 		this.locator = locator;
 	}
 
-	public ConfigurationStore getConfigurationStore() {
-		return locator.getConfigurationStore();
-	}
-	
-	public Configuration getConfiguration() {
-		return locator.getConfiguration();
-	}
-	
-	public JobScheduler getJobScheduler() {
-		return locator.getJobScheduler();
+	public ServiceLocator getServiceLocator() {
+		return this.locator;
 	}
 
-	public Messenger getMessenger() {
-		return locator.getMessenger();
+	public Configuration getConfiguration() {
+		return getServiceLocator().getConfiguration();
 	}
 	
 	public void registerHarvesterType(Class<? extends Harvester<?>> harvesterType) {

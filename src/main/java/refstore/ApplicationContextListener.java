@@ -8,6 +8,7 @@ import javax.servlet.ServletContext;
 import javax.servlet.ServletContextEvent;
 import javax.servlet.ServletContextListener;
 
+import org.codehaus.jackson.JsonFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -18,6 +19,7 @@ import refstore.configuration.ConfigurationException;
 import refstore.configuration.ConfigurationStore;
 import refstore.configuration.JdbcConfigurationStore;
 import refstore.database.JndiDataSource;
+import refstore.harvesting.HarvestingReceiver;
 import refstore.jobs.JdbcJobStore;
 import refstore.jobs.JobScheduler;
 import refstore.jobs.RefStoreJobScheduler;
@@ -25,6 +27,7 @@ import refstore.messaging.Messenger;
 import refstore.messaging.RabbitMqBackedMessenger;
 import refstore.records.RecordStore;
 import refstore.records.ShardedJdbcRecordStore;
+import refstore.services.ServiceLocator;
 import refstore.services.WiringBackedServiceLocator;
 import refstore.wiring.Wiring;
 
@@ -42,12 +45,21 @@ public class ApplicationContextListener implements ServletContextListener {
 			log.warn("Interrupted while waiting for rabbitmq: '{}'", e.getMessage());
 		}
 
-		RefStore refStore = new RefStore(createServiceLocator(sce));
-		refStore.getJobScheduler().start();
+		log.info("Creating service locator");
+		ServiceLocator services = createServiceLocator(sce);
+		
+		log.info("Starting job scheduler");
+		services.getJobScheduler().start();
+
+		Messenger messenger = services.getMessenger();
+		log.info("Creating message queue '{}'", HarvestingReceiver.QUEUE);
+		messenger.createQueue(HarvestingReceiver.QUEUE);
+		messenger.add(new HarvestingReceiver());
+		messenger.add(new HarvestingReceiver());
 
 		ServletContext context = sce.getServletContext();
 		context.setAttribute("contextPath", context.getContextPath());
-		context.setAttribute("refStore", refStore);
+		context.setAttribute("refStore", new RefStore(services));
 	}
 
 	@Override
@@ -55,10 +67,10 @@ public class ApplicationContextListener implements ServletContextListener {
 		RefStore refStore = (RefStore) sce.getServletContext().getAttribute("refStore");
 		if (refStore != null) {
 			log.info("Shutting down job scheduler");
-			refStore.getJobScheduler().shutDown();
+			refStore.getServiceLocator().getJobScheduler().shutDown();
 			try {
 				log.info("Closing messenger");
-				refStore.getMessenger().close();
+				refStore.getServiceLocator().getMessenger().close();
 			} catch (Exception e) {
 				log.warn("Error while closing messenger", e);
 			}
@@ -73,6 +85,7 @@ public class ApplicationContextListener implements ServletContextListener {
 		wiring.wire(Configuration.class, loadConfiguration(configurationStore));
 		wiring.wire(JobScheduler.class, new RefStoreJobScheduler(createJobStore()));
 		wiring.wire(RecordStore.class, createRecordStore());
+		wiring.wire(JsonFactory.class, new JsonFactory());
 		wiring.wire(Messenger.class, createMessenger(sce.getServletContext().getInitParameter("RABBITMQ_URL")));
 
 		return new WiringBackedServiceLocator(wiring);
