@@ -11,6 +11,7 @@ after_success:
 
 before_install:
   - curl -fsSL https://get.docker.com/ | sh
+  - usermod -aG docker travis
 
 script: 
   - scripts/build_mvn_runner.sh
