@@ -19,8 +19,6 @@ RUN pg_ctlcluster 9.4 main start && \
     echo "host all refstore 0.0.0.0/0 md5" >> /etc/postgresql/9.4/main/pg_hba.conf && \
     echo "listen_addresses = '*'" >> /etc/postgresql/9.4/main/postgresql.conf
 
-VOLUME /var/lib/postgresql
-
 EXPOSE 5432
 
 ENTRYPOINT ["pg_ctlcluster", "--foreground", "9.4", "main"]

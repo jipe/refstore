@@ -15,7 +15,7 @@ RUN apt-get -yqq install --no-install-recommends tzdata locales && \
 ENV LC_ALL en_DK.UTF-8
 ENV LANG en_DK.UTF-8
 
-COPY docker/tester/entrypoint.sh /
+COPY docker/mvn/entrypoint.sh /
 
 ENTRYPOINT ["/entrypoint.sh"]
-CMD ["cobertura:cobertura-integration-test"]
+CMD ["clean", "verify"]
