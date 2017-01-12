@@ -3,15 +3,17 @@ sudo: required
 
 language: java
 
+services:
+  - docker
+
 jdk:
   - oraclejdk8
 
 after_success:
   - mvn -P coveralls coveralls:report
 
-before_install:
-  - curl -fsSL https://get.docker.com/ | sh
-  - sudo usermod -aG docker travis
+before_script:
+  - docker --version
 
 script: 
   - scripts/build_mvn_runner.sh
