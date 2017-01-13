@@ -3,55 +3,33 @@ A web application for harvesting, processing and indexing publication references
 
 This is currently a work in progress.
 
-## Building the WAR file
+## Up and running in no time with Docker
 
-Build environment requirements:
+Make sure you have Docker 1.12+ installed, and that you're in the `docker` group.
 
-* Java 8
-* Maven 3
+Before you can do anything Maven-wise, you need to build the `mvn-runner`. This is
+a Docker container, that can compile, test and package the application without you
+even needing to have Java or Maven installed on your local machine. In fact it's
+a direct link to the Maven command inside the Docker container, so you can invoke
+any Maven build you like.
 
-Build the RefStore WAR file with
-    
-    $ ./build.sh
+    $ ./scripts/build.sh
 
-This also runs the unit tests.
+builds the Docker image for `mvn-runner`. This image is used by a lot of the other
+scripts, and you can't really get off the ground without this.
 
-## Integration testing and running the application
+Now you can run the application unit and integration tests either by
 
-Integration tests currently require Docker and Docker Compose in order to run,
-as starting and stopping the containers is integrated into the Maven POM file.
+    $ ./test.sh
 
-### Using Docker Compose
+which is really just a small convenience script doing
 
-Requirements:
+    $ ./scripts/mvn.sh verify
 
-* Docker 1.12
-* Docker Compose 1.8
+Please note that if you do a `./scripts/mvn.sh install` which is normal when using Maven,
+the Maven artifact will not be installed in your `$USER/.m2/repository` but rather in a 
+Docker managed named volume, that normally resides in `/var/lib/docker/volumes/maven-repo`
+and you need root permissions to get at that location.
 
-Then you can launch the Docker containers with
-
-	$ ./run.sh
-	
-Then you can run the integration tests against the container setup with
-
-	$ ./test.sh
-	
-### On local machine
-
-* RabbitMQ 3
-* PostgreSQL 9.4
-* Tomcat 8
-
-The default Tomcat context file (located at src/main/webapp/META-INF/context.xml) expects the following:
-
-* RabbitMQ accessible with the URI "ampq://guest:guest@localhost:5672" (the default RabbitMQ location).
-* PostgreSQL accessible with the URL "postgresql://refstore:refstore@localhost:5432".
-
-It's also expected that the following databases are available to the refstore user:
-
-* refstore.job-store
-* refstore.configuration-store
-* refstore.record-store-shard1
-
-You can add more shards for the record store if you like just by adding another database increasing 
-the shard number and creating a corresponding entry in the context file.
+The Maven `verify` goal also packages the application WAR file and a directory containing
+the exploded WAR file. These are both available in the `target` directory subsequently.
