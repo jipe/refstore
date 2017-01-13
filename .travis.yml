@@ -12,9 +12,6 @@ jdk:
 after_success:
   - mvn -P coveralls coveralls:report
 
-before_script:
-  - docker --version
-
 script: 
   - scripts/build_mvn_runner.sh
-  - ./test.sh
+  - scripts/mvn.sh -P code-coverage clean cobertura:cobertura-integration-test

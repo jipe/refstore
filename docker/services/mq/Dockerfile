@@ -9,6 +9,10 @@ RUN echo 'deb http://www.rabbitmq.com/debian/ testing main' > /etc/apt/sources.l
 RUN apt-get -q update && \
     apt-get install -yq --no-install-recommends rabbitmq-server
 
+ENV TINI_VERSION v0.13.2
+ADD https://github.com/krallin/tini/releases/download/${TINI_VERSION}/tini /tini
+RUN chmod +x /tini
+
 EXPOSE 5672 15672
 
 COPY enabled_plugins /etc/rabbitmq/enabled_plugins
@@ -18,4 +22,4 @@ RUN /bin/bash -c /root/configure_rabbitmq.sh
 
 COPY rabbitmq.config /etc/rabbitmq/rabbitmq.config
 
-ENTRYPOINT ["rabbitmq-server"]
+ENTRYPOINT ["/tini", "--", "rabbitmq-server"]

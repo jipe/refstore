@@ -29,14 +29,16 @@ function is_buildable {
 function build_images {
   for service in $services; do
     if [[ $(is_buildable $service) ]]; then
-      echo "Building service '$service'..."
-      $docker build -t $application/$service -f $PWD/docker/services/$service/Dockerfile $PWD/docker/services/$service
+      echo "Building service '$service'"
+      $docker build -t $application/$service \
+                    -f $PWD/docker/services/$service/Dockerfile \
+                    $PWD/docker/services/$service
     fi
   done
 }
 
 function run_containers {
-  ./network.sh create
+  scripts/network.sh create
 
   for service in $services; do
     if [[ $(is_buildable $service) ]]; then
@@ -46,35 +48,45 @@ function run_containers {
     fi
     container_name=${application}_${service}
 
-    echo "Starting service '$service' (container name: $container_name)..."
-    $docker run -d --name $container_name \
-                   --network $network_name \
-                   --network-alias $service \
-                   $image_name
+    if [[ -f "$PWD/docker/services/$service/docker_args" ]]; then
+      docker_args=$(cat $PWD/docker/services/$service/docker_args)
+    fi
+
+    echo "Starting service '$service' (container name: $container_name)"
+    $docker run -d -t --name $container_name \
+                      --network $network_name \
+                      --network-alias $service \
+                      $docker_args \
+                      $image_name > /dev/null
   done
 }
 
 function start_containers {
   for service in $services; do
     $container_name=${application}_${service}
-    echo "Starting stopped service '$service' (container name: $container_name)..."
-    $docker start $container_name
+    echo "Starting stopped service '$service' (container name: $container_name)"
+    $docker start $container_name > /dev/null
   done
 }
 
 function stop_containers {
   for service in $services; do
     container_name=${application}_${service}
-    echo "Stopping service '$service' (container name: $container_name)..."
-    $docker stop $container_name
+    if [[ $($docker ps | grep -e " $container_name$") ]]; then
+      echo "Stopping service '$service' (container name: $container_name)"
+      $docker stop $container_name >/dev/null
+    fi
   done
 }
 
 function rm_containers {
+  stop_containers
   for service in $services; do
     container_name=${application}_${service}
-    echo "Removing service '$service' (container name: $container_name)..."
-    $docker rm $container_name
+    if [[ $($docker ps -a | grep -e " $container_name$") ]]; then
+      echo "Removing service '$service' (container name: $container_name)"
+      $docker rm $container_name > /dev/null
+    fi
   done
 }
 
