@@ -13,5 +13,5 @@ after_success:
   - mvn -P coveralls coveralls:report
 
 script: 
-  - scripts/build_mvn_runner.sh
+  - scripts/build_runner.sh mvn
   - scripts/mvn.sh -P code-coverage clean cobertura:cobertura-integration-test
