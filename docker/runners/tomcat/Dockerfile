@@ -12,8 +12,8 @@ ENV CATALINA_TMPDIR /tmp
 
 EXPOSE 8080
 
-COPY docker/lib/postgresql-9.4.1208.jar $CATALINA_HOME/lib/
-COPY docker/controller/context.xml $CATALINA_BASE/conf/Catalina/localhost/ROOT.xml
+COPY docker/runners/tomcat/lib/postgresql-9.4.1208.jar $CATALINA_HOME/lib/
+COPY docker/runners/tomcat/context.xml $CATALINA_BASE/conf/Catalina/localhost/ROOT.xml
 COPY target/refstore /refstore
 
 RUN chown -R tomcat8:tomcat8 /refstore

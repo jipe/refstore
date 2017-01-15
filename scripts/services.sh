@@ -7,23 +7,31 @@ if [[ -z $docker ]]; then
 fi
 
 application=refstore
-services=$(ls docker/services)
-network_name=$(cat docker/network_name)
+root_dir=.
+
+if [[ ! -d $root_dir/docker ]]; then
+  root_dir=..
+fi
+
+services=$(ls $root_dir/docker/services)
+network_name=$(cat $root_dir/docker/network_name)
 
 function usage {
-  echo "$0 <build|run|stop|rm>"
+  echo "$0 <command>"
   echo
-  echo "  Actions:"
-  echo
-  echo "    build: Build Docker images for all buildable services"
-  echo "      run: Run the service containers"
-  echo "     stop: Stop the service containers"
-  echo "       rm: Remove the service containers"
+  echo "  Commands:"
+  echo "  ---------"
+  echo "     build: Build service containers"
+  echo "       run: Run service containers"
+  echo "     start: Start stopped service containers"
+  echo "      stop: Stop service containers"
+  echo "        rm: Remove service containers"
+  echo " -h|--help: Display this information"
   echo
 }
 
 function is_buildable {
-  echo $(ls $PWD/docker/services/$1/Dockerfile)
+  echo $(ls $root_dir/docker/services/$1/Dockerfile)
 }
 
 function build_images {
@@ -31,8 +39,8 @@ function build_images {
     if [[ $(is_buildable $service) ]]; then
       echo "Building service '$service'"
       $docker build -t $application/$service \
-                    -f $PWD/docker/services/$service/Dockerfile \
-                    $PWD/docker/services/$service
+                    -f $root_dir/docker/services/$service/Dockerfile \
+                    $root_dir/docker/services/$service
     fi
   done
 }
@@ -44,12 +52,12 @@ function run_containers {
     if [[ $(is_buildable $service) ]]; then
       image_name=${application}/${service}
     else
-      image_name=$(cat $PWD/docker/services/$service/image_name)
+      image_name=$(cat $root_dir/docker/services/$service/image_name)
     fi
     container_name=${application}_${service}
 
-    if [[ -f "$PWD/docker/services/$service/docker_args" ]]; then
-      docker_args=$(cat $PWD/docker/services/$service/docker_args)
+    if [[ -f "$root_dir/docker/services/$service/docker_args" ]]; then
+      docker_args=$(cat $root_dir/docker/services/$service/docker_args)
     fi
 
     echo "Starting service '$service' (container name: $container_name)"
@@ -64,8 +72,12 @@ function run_containers {
 function start_containers {
   for service in $services; do
     $container_name=${application}_${service}
-    echo "Starting stopped service '$service' (container name: $container_name)"
-    $docker start $container_name > /dev/null
+    if [[ -z $($docker ps | grep -e " $container_name$") ]] && [[ $($docker ps -a | grep -e " $container_name$") ]]; then
+      echo "Starting stopped service '$service' (container name: $container_name)"
+      $docker start $container_name > /dev/null
+    else
+      echo "Service '$service' is already running (container name: $container_name)"
+    fi
   done
 }
 
@@ -75,6 +87,8 @@ function stop_containers {
     if [[ $($docker ps | grep -e " $container_name$") ]]; then
       echo "Stopping service '$service' (container name: $container_name)"
       $docker stop $container_name >/dev/null
+    else
+      echo "Service '$service' is not running (container name: $container_name)"
     fi
   done
 }
@@ -103,6 +117,9 @@ for arg; do
     run)
       run_containers
       ;;
+    start)
+      start_containers
+      ;;
     stop)
       stop_containers
       ;;
@@ -114,6 +131,8 @@ for arg; do
       exit 0
       ;;
     *)
+      usage
+      exit 1
       ;;
   esac
 done

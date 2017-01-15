@@ -15,7 +15,7 @@ RUN apt-get -yqq install --no-install-recommends tzdata locales && \
 ENV LC_ALL en_DK.UTF-8
 ENV LANG en_DK.UTF-8
 
-COPY docker/mvn/entrypoint.sh /
+COPY docker/runners/mvn/entrypoint.sh /
 
 ENTRYPOINT ["/entrypoint.sh"]
 CMD ["clean", "verify"]

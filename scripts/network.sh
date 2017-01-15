@@ -6,15 +6,21 @@ if [[ -z $docker ]]; then
   exit 1
 fi
 
-network_name=$(cat docker/network_name)
+root_dir=.
+
+if [[ ! -d $root_dir/docker ]]; then
+  root_dir=..
+fi
+
+network_name=$(cat $root_dir/docker/network_name)
 
 function usage {
-  echo "$0 <create|rm> : Create or remove Docker network used for the application."
+  echo "$0 <command>"
   echo
-  echo "  Actions"
-  echo "  -------"
-  echo "   create : Create the Docker network."
-  echo "       rm : Remove the Docker network."
+  echo "  Commands"
+  echo "  --------"
+  echo "    create : Create the Docker network."
+  echo "        rm : Remove the Docker network."
   echo
 }
 
@@ -23,7 +29,7 @@ function network_exists {
 }
 
 if [[ -z $@ ]]; then
-  echo "Missing argument."
+  echo "Missing command."
   echo
   usage
   exit 1

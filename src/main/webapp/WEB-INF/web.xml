@@ -6,7 +6,7 @@
 
 	<context-param>
 		<param-name>RABBITMQ_URL</param-name>
-		<param-value>amqp://guest:guest@localhost:5672</param-value>
+		<param-value>amqp://guest:guest@localhost:5673</param-value>
 	</context-param>
 
 	<listener>
